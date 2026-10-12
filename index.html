@@ -406,18 +406,24 @@
       outline-offset: -4px;
     }
 
+    /* the symbols lie over the picture, so the ones on its edge
+       stay visible; the clicks pass through to what is below */
     .field canvas {
       position: absolute;
       inset: 0;
+      z-index: 2;
 
       width: 100%;
       height: 100%;
 
       display: block;
+
+      pointer-events: none;
     }
 
     .field-open {
       position: absolute;
+      z-index: 1;
 
       margin: 0;
       padding: 0;
@@ -809,18 +815,20 @@
   ================================================== */
 
   /*
-    A field of symbols on a grid. Near the pointer the symbols
-    grow and change; a click opens the next picture at that
-    place, covering a block of cells (a wide picture 6 x 4 cells,
-    a tall one 4 x 6, an almost square one 4 x 4). A click on the
-    open picture closes it; a click elsewhere replaces it with the
-    next picture. On a phone a tap does the same, with a ripple
-    from the finger, and the field breathes slowly by itself.
+    A field of symbols on a grid (small dots). Near the pointer the
+    dots turn into symbols that change while the pointer moves and
+    freeze when it stops. A click opens the next picture at that
+    place: its edges run exactly along rows and columns of the
+    symbols (a wide picture 12 x 8 steps of the grid, a tall one
+    8 x 12, an almost square one 8 x 8). A click on the open picture
+    closes it; a click elsewhere replaces it with the next picture.
+    On a phone a tap does the same, with a ripple from the finger,
+    and the field breathes slowly by itself.
 
     columns       how many symbols across the screen
                   (desktop / phone)
-    open          how many cells the open picture covers: the
-                  long side and the short side
+    open          how many steps of the grid the open picture
+                  covers: the long side and the short side
                   (desktop / phone; bigger = bigger pictures)
     height        the height of the field as a share of the
                   height of the screen
@@ -836,13 +844,13 @@
 
   const PROJECTS_SETTINGS = {
 
-    columns: { desktop: 16, phone: 7 },
+    columns: { desktop: 32, phone: 14 },
     open: {
-      desktop: { long: 6, short: 4 },
-      phone:   { long: 6, short: 4 }
+      desktop: { long: 12, short: 8 },
+      phone:   { long: 12, short: 8 }
     },
     height: 0.8,
-    wave: 2.6,
+    wave: 5.5,
     placeholders: 12,
 
     folder: "projects/",
@@ -1140,6 +1148,12 @@
       m.cols = m.phone ? S.columns.phone : S.columns.desktop;
       m.cell = m.w / m.cols;
 
+      /* the size of a symbol: the same as the symbols of the
+         picture on the first screen */
+      m.sym = m.phone
+        ? Math.max(8.5, Math.min(window.innerWidth, 1200) * 0.0095)
+        : Math.max(6.5, Math.min(window.innerWidth, 1200) * 0.00891);
+
       const need = (m.phone ? S.open.phone : S.open.desktop).long + 1;
 
       m.rows = Math.max(need, Math.round(window.innerHeight * S.height / m.cell));
@@ -1165,6 +1179,7 @@
     /* ---------- what moves the symbols ---------- */
 
     let cursor = null;          /* {x, y} in pixels, or null */
+    let lastMove = -1e9;        /* when the pointer or the keys last moved */
     let keyboard = null;        /* {i, j}: the point of the keys */
     const pulses = [];          /* ripples: {x, y, t0} */
 
@@ -1176,7 +1191,6 @@
 
       g.clearRect(0, 0, m.w, m.h);
 
-      g.fillStyle = "#000";
       g.textAlign = "center";
       g.textBaseline = "middle";
 
@@ -1194,7 +1208,17 @@
         }
       }
 
-      const breath = still ? 0 : (touchOnly ? 0.3 : 0.08);
+      /* the symbols change only while something moves: the
+         pointer, a ripple, or (on a phone) the slow breath */
+      const breath = still ? 0 : (touchOnly ? 0.3 : 0);
+      const moving = now - lastMove < 120 || pulses.length > 0 || breath > 0;
+
+      /* the pointer rests on the field: everything stands still
+         (the trail stays as it is until the pointer leaves) */
+      const frozen = !moving && !!point;
+
+      const font = m.sym + 'px "IBM Plex Mono", "Courier New", monospace';
+      const dot = m.sym * 0.16;
 
       for (let j = 0; j < m.rows; j++) {
         for (let i = 0; i < m.cols; i++) {
@@ -1203,11 +1227,17 @@
           const x = px(i);
           const y = py(j);
 
-          /* under the open picture: nothing to draw */
-          if (hole && x > hole.l && x < hole.r && y > hole.t && y < hole.b) {
+          /* under the open picture: nothing to draw (the symbols on
+             its edge are drawn over it) */
+          const inside = hole && x > hole.l + 1 && x < hole.r - 1 && y > hole.t + 1 && y < hole.b - 1;
+
+          if (inside) {
             weight[n] = 0;
+            kind[n] = 255;
             continue;
           }
+
+          const onEdge = hole && x >= hole.l - 1 && x <= hole.r + 1 && y >= hole.t - 1 && y <= hole.b + 1;
 
           let target = 0;
 
@@ -1219,50 +1249,67 @@
           for (let k = 0; k < pulses.length; k++) {
             const age = (now - pulses[k].t0) / 1000;
             const d = Math.hypot(x - pulses[k].x, y - pulses[k].y) / cell;
-            const ring = Math.exp(-Math.pow(d - age * 7, 2) / 1.6) * (1 - age / 1.6);
+            const ring = Math.exp(-Math.pow(d - age * 14, 2) / 6.4) * (1 - age / 1.6);
             target = Math.max(target, ring);
           }
 
           if (breath) {
-            const wave = Math.sin(i * 0.55 + j * 0.4 + now * 0.0012) *
-                         Math.sin(i * 0.23 - j * 0.31 + now * 0.0007);
+            const wave = Math.sin(i * 0.27 + j * 0.2 + now * 0.0012) *
+                         Math.sin(i * 0.12 - j * 0.15 + now * 0.0007);
             target = Math.max(target, breath * clamp01(wave * 1.4));
           }
 
-          /* quick to grow, slow to fade: a trail behind the pointer */
-          const rate = still ? 1 : (target > weight[n] ? 0.4 : 0.07);
-          weight[n] += (target - weight[n]) * rate;
+          /* quick to wake, slow to fall asleep: a trail behind
+             the pointer */
+          if (!frozen) {
+            const rate = still ? 1 : (target > weight[n] ? 0.4 : 0.07);
+            weight[n] += (target - weight[n]) * rate;
+          }
 
           const w = weight[n];
 
+          /* a halo so a symbol on the edge reads over the picture */
+          if (onEdge) {
+            g.fillStyle = "#f3f0e8";
+            g.beginPath();
+            g.arc(x, y, m.sym * 0.55, 0, 6.2832);
+            g.fill();
+          }
+
+          g.fillStyle = "#000";
+
           if (w < 0.1) {
 
-            kind[n] = 0;
+            kind[n] = 255;
 
             g.beginPath();
-            g.arc(x, y, Math.max(1.2, cell * (0.04 + 0.2 * w)), 0, 6.2832);
+            g.arc(x, y, dot, 0, 6.2832);
             g.fill();
 
             continue;
 
           }
 
-          /* the symbol changes at random while it is awake */
-          if (now >= change[n]) {
+          /* a symbol wakes with a random face; it changes only while
+             something moves, and stands still when everything stops */
+          if (kind[n] === 255) {
             kind[n] = Math.floor(Math.random() * SYMBOLS.length);
-            change[n] = now + (still ? 1e9 : 70 + Math.random() * 160);
+            change[n] = now + 70 + Math.random() * 160;
+          }
+          else if (moving && !still && now >= change[n]) {
+            kind[n] = Math.floor(Math.random() * SYMBOLS.length);
+            change[n] = now + 70 + Math.random() * 160;
           }
 
-          const size = cell * (0.16 + 0.62 * w);
           const symbol = SYMBOLS[kind[n]];
 
           if (symbol === "o") {
             g.beginPath();
-            g.arc(x, y, size * 0.34, 0, 6.2832);
+            g.arc(x, y, m.sym * 0.3, 0, 6.2832);
             g.fill();
           }
           else {
-            g.font = size + 'px "IBM Plex Mono", "Courier New", monospace';
+            g.font = font;
             g.fillText(symbol, x, y);
           }
 
@@ -1364,22 +1411,19 @@
             ny = look.long;
           }
 
-          /* the block of cells is centred on the point, then pushed
-             back inside the field by whole cells */
-          let left = px(pi) - nx * m.cell / 2;
-          let top = py(pj) - ny * m.cell / 2;
+          /* the picture runs from symbol to symbol: its edges lie on
+             rows and columns of the grid, its centre is the point;
+             it is pushed back inside the field by whole steps */
+          let i0 = pi - nx / 2;
+          let j0 = pj - ny / 2;
 
-          left = Math.max(0, Math.min(m.w - nx * m.cell, left));
-          top = Math.max(0, Math.min(m.h - ny * m.cell, top));
+          i0 = Math.max(0, Math.min(m.cols - 1 - nx, i0));
+          j0 = Math.max(0, Math.min(m.rows - 1 - ny, j0));
 
-          /* a little smaller than the block: the dots on its edge
-             stay visible around the picture */
-          const inset = m.cell * 0.3;
-
-          const l = left + inset;
-          const t = top + inset;
-          const w = nx * m.cell - 2 * inset;
-          const h = ny * m.cell - 2 * inset;
+          const l = px(i0);
+          const t = py(j0);
+          const w = nx * m.cell;
+          const h = ny * m.cell;
 
           hole = { l: l, t: t, r: l + w, b: t + h };
 
@@ -1441,6 +1485,7 @@
 
       cursor = local(event);
       keyboard = null;
+      lastMove = performance.now();
       wake();
 
     }
@@ -1489,6 +1534,7 @@
           keyboard.j = Math.max(0, Math.min(m.rows - 1, keyboard.j + arrows[event.key][1]));
         }
 
+        lastMove = performance.now();
         wake();
         return;
 
