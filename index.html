@@ -596,8 +596,12 @@
         padding: 52px 16px;
       }
 
-      .section-small {
-        font-size: 10px;
+      /* on a phone every text of the page has one size: the size
+         of the titles and of the symbols of the picture */
+      .section-small,
+      .text-lead,
+      .text-block p {
+        font-size: var(--sym);
       }
 
       #projects .section-title {
@@ -606,14 +610,6 @@
 
       .gallery {
         --cols: var(--cols-phone, 2);
-      }
-
-      .text-lead {
-        font-size: 14px;
-      }
-
-      .text-block p {
-        font-size: 13px;
       }
 
       .people {
@@ -831,7 +827,12 @@
 
     images: [
       /* "01.jpg", "02.jpg", … */
-    ]
+    ],
+
+    /* while the list above is empty the page looks in the folder
+       for 01.jpg, 02.jpg, 03.jpg … and shows all it finds, up to
+       this number (no list to edit: just add the files) */
+    autoMax: 120
 
   };
 
@@ -1028,6 +1029,8 @@
      PROJECTS: the gallery from PROJECTS_SETTINGS
   ================================================== */
 
+  let discovered = null;
+
   function buildGallery() {
 
     const gallery = document.getElementById("gallery");
@@ -1040,7 +1043,7 @@
 
     const list = PROJECTS_SETTINGS.images.length
       ? PROJECTS_SETTINGS.images
-      : Array.from({ length: PROJECTS_SETTINGS.placeholders }, () => "");
+      : (discovered || Array.from({ length: PROJECTS_SETTINGS.placeholders }, () => ""));
 
     const cells = [];
 
@@ -1121,6 +1124,42 @@
   }
 
   buildGallery();
+
+  /* no list: look for 01.jpg, 02.jpg … in the folder (all the
+     requests go out at once; a missing file is a quick 404) */
+  if (!PROJECTS_SETTINGS.images.length && window.fetch &&
+      /^https?:/.test(window.location.protocol)) {
+
+    const names = Array.from(
+      { length: PROJECTS_SETTINGS.autoMax },
+      (_, i) => String(i + 1).padStart(2, "0") + ".jpg"
+    );
+
+    Promise.all(
+      names.map(
+        (name) => fetch(PROJECTS_SETTINGS.folder + name, { method: "HEAD" })
+          .then((response) => response.ok)
+          .catch(() => false)
+      )
+    ).then(
+      (found) => {
+
+        const list = [];
+
+        /* the numbers must follow each other: 01, 02, 03 … */
+        for (let i = 0; i < names.length && found[i]; i++) {
+          list.push(names[i]);
+        }
+
+        if (list.length) {
+          discovered = list;
+          buildGallery();
+        }
+
+      }
+    );
+
+  }
 
 
   /* ==================================================
@@ -1776,7 +1815,7 @@
     cellDivisor: 165,
 
     desktop: { minCell: 4,   bottomGap: 0.1,  tilt: 0.6,  height: 0.2,  wall: 0.08, width: 0.9 },
-    phone:   { minCell: 5.2, bottomGap: 0.12, tilt: 0.95, height: 0.42, wall: 0.14, width: 0.96 }
+    phone:   { minCell: 5.2, bottomGap: 0.12, tilt: 0.75, height: 0.26, wall: 0.1,  width: 0.8 }
   };
 
 
