@@ -680,7 +680,7 @@
 
       <!-- the same words are drawn on the canvas with symbols -->
       <h1 class="visually-hidden" id="heroTitle" data-i18n="logoText">METHOD</h1>
-      <p class="visually-hidden" data-i18n="heroSub">LANDSCAPE ARCHITECTURE.</p>
+      <p class="visually-hidden" data-i18n="heroSub">LANDSCAPE ARCHITECTURE</p>
 
     </div>
 
@@ -913,7 +913,7 @@
       aboutTitle: "ABOUT",
       contactTitle: "CONTACT",
 
-      heroSub: "LANDSCAPE ARCHITECTURE.",
+      heroSub: "LANDSCAPE ARCHITECTURE",
 
       method: [
         "METHOD is a way of turning observation into a design decision.",
@@ -947,7 +947,7 @@
       aboutTitle: "О БЮРО",
       contactTitle: "КОНТАКТЫ",
 
-      heroSub: "ЛАНДШАФТНАЯ АРХИТЕКТУРА.",
+      heroSub: "ЛАНДШАФТНАЯ АРХИТЕКТУРА",
 
       method: [
         "МЕТОД — это способ превращать наблюдение в проектное решение.",
@@ -1800,6 +1800,8 @@
     wall           how tall the cut faces under the terrain are,
                    as a share of its width
     width          how much of the screen width the terrain takes
+    topBias        where the picture sits in the free space: 0 = right
+                   under the header, 0.5 = in the middle, 1 = at the bottom
     bottomGap      free room under the picture, as a share of the
                    screen height
 
@@ -1814,8 +1816,8 @@
     seed: 3,
     cellDivisor: 165,
 
-    desktop: { minCell: 4,   bottomGap: 0.1,  tilt: 0.6,  height: 0.2,  wall: 0.08, width: 0.9 },
-    phone:   { minCell: 5.2, bottomGap: 0.12, tilt: 0.75, height: 0.26, wall: 0.1,  width: 0.8 }
+    desktop: { minCell: 4,   bottomGap: 0.1,  topBias: 0.35,  tilt: 0.6,  height: 0.2,  wall: 0.08, width: 0.9 },
+    phone:   { minCell: 5.2, bottomGap: 0.12, topBias: 0.2, tilt: 0.75, height: 0.26, wall: 0.1,  width: 0.8 }
   };
 
 
@@ -2124,7 +2126,6 @@
       const zoneBottom = m.height - Math.max(18, m.height * look.bottomGap);
       const zone = zoneBottom - zoneTop;
 
-      m.zoneMiddle = (zoneTop + zoneBottom) / 2;
 
       const reliefW = Math.min(
         m.width * look.width,
@@ -2139,7 +2140,10 @@
       /* the whole block (peaks and cut faces) in the middle of
          the space under the header */
       const extent = reliefW * look.tilt + amp + wallPx;
-      const top = zoneTop + (zone - extent) / 2;
+      const top = zoneTop + (zone - extent) * look.topBias;
+
+      /* the two lines of text sit at the middle of the picture */
+      m.zoneMiddle = top + extent / 2;
 
       const cx = m.width / 2;
       const cy = top + amp + reliefW * look.tilt / 2;
