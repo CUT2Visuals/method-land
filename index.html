@@ -822,8 +822,8 @@
     symbols (a wide picture 12 x 8 steps of the grid, a tall one
     8 x 12, an almost square one 8 x 8). A click on the open picture
     closes it; a click elsewhere replaces it with the next picture.
-    On a phone a tap does the same, with a ripple from the finger,
-    and the field breathes slowly by itself.
+    On a phone a tap does the same, and the field breathes slowly
+    by itself.
 
     columns       how many symbols across the screen
                   (desktop / phone)
@@ -850,7 +850,7 @@
       phone:   { long: 12, short: 8 }
     },
     height: 0.8,
-    wave: 5.5,
+    wave: 1.8,
     placeholders: 12,
 
     folder: "projects/",
@@ -1294,11 +1294,11 @@
              something moves, and stands still when everything stops */
           if (kind[n] === 255) {
             kind[n] = Math.floor(Math.random() * SYMBOLS.length);
-            change[n] = now + 70 + Math.random() * 160;
+            change[n] = now + 210 + Math.random() * 480;
           }
           else if (moving && !still && now >= change[n]) {
             kind[n] = Math.floor(Math.random() * SYMBOLS.length);
-            change[n] = now + 70 + Math.random() * 160;
+            change[n] = now + 210 + Math.random() * 480;
           }
 
           const symbol = SYMBOLS[kind[n]];
@@ -1506,8 +1506,6 @@
       const pi = Math.max(0, Math.min(m.cols - 1, Math.round(at.x / m.cell - 0.5)));
       const pj = Math.max(0, Math.min(m.rows - 1, Math.round(at.y / m.cell - 0.5)));
 
-      pulses.push({ x: px(pi), y: py(pj), t0: performance.now() });
-
       open(pi, pj);
       wake();
 
@@ -1544,7 +1542,6 @@
 
         event.preventDefault();
 
-        pulses.push({ x: px(keyboard.i), y: py(keyboard.j), t0: performance.now() });
         open(keyboard.i, keyboard.j);
         wake();
 
