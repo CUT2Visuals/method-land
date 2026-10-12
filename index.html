@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+    Page title, description and the picture for link previews.
+    These values repeat I18N.en (pageTitle) in the script below.
+    They are written here in plain HTML on purpose: search
+    engines and social networks do not run scripts. If you
+    change one, change the other.
+  -->
+  <title>METHOD — landscape architecture</title>
+  <meta name="description" content="METHOD is a landscape architecture practice. It turns observation into spatial decisions that can be tested, described and reproduced.">
+  <link rel="canonical" href="https://method.land/">
+
+  <meta property="og:title" content="METHOD — landscape architecture">
+  <meta property="og:description" content="METHOD is a landscape architecture practice. It turns observation into spatial decisions that can be tested, described and reproduced.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://method.land/">
+  <meta property="og:image" content="https://method.land/og-image.png">
+  <meta property="og:image:alt" content="METHOD — landscape architecture">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f3f0e8">
+
+  <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml">
+
+  <!-- the font is part of the site (fonts/), no Google Fonts -->
+  <link
+    rel="preload"
+    href="fonts/ibm-plex-mono-latin-400.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  >
+
+  <style>
+
+    /* ==================================================
+       FONT: IBM Plex Mono Regular 2.3 (SIL Open Font
+       License, see fonts/OFL.txt). The same files as on
+       cut2.tools. The browser loads a file only when the
+       text needs its characters (unicode-range).
+    ================================================== */
+
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+
+      src: url("fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+
+      unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+        U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+        U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+        U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+
+      src: url("fonts/ibm-plex-mono-cyrillic-400.woff2") format("woff2");
+
+      unicode-range:
+        U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+
+      src: url("fonts/ibm-plex-mono-arrows-400.woff2") format("woff2");
+
+      unicode-range: U+2190, U+2192;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+
+      background: #f3f0e8;
+      color: #000;
+
+      font-family:
+        "IBM Plex Mono",
+        "Courier New",
+        monospace;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+
+    /* ==================================================
+       HEADER: a plain black bar
+    ================================================== */
+
+    :root {
+      --paper: #f3f0e8;
+
+      --header-h: 48px;
+
+      /* one size for the small display lines: the section titles
+         (as big as the symbols of the picture on the first screen) */
+      --display: var(--sym);
+
+      /* the size of one symbol of the picture on the first screen
+         (see INTRO_SETTINGS: width of a cell / 0.6 * 0.98): the
+         names of the sections are as big as METHOD there */
+      --sym: max(6.5px, calc(min(100vw, 1200px) * 0.00891));
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: var(--header-h);
+
+      padding: 0 20px;
+
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+
+      background: #000;
+      color: var(--paper);
+
+      font-size: var(--sym);
+      letter-spacing: 0;
+
+      z-index: 100;
+    }
+
+    header a,
+    .lang-button {
+      color: var(--paper);
+      text-decoration: none;
+
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 400;
+      letter-spacing: inherit;
+      line-height: normal;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* at least 44px high for fingers */
+    header a,
+    .lang-button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .logo {
+      justify-self: start;
+    }
+
+    .lang-button {
+      justify-self: end;
+
+      border: 0;
+      border-radius: 0;
+      background: none;
+      padding: 0;
+
+      cursor: pointer;
+    }
+
+    .site-nav {
+      display: flex;
+      gap: 40px;
+    }
+
+    header a:focus,
+    .lang-button:focus {
+      outline: none;
+    }
+
+    header a:focus-visible,
+    .lang-button:focus-visible {
+      outline: 1px solid var(--paper);
+      outline-offset: 4px;
+    }
+
+
+    /* ==================================================
+       HERO: the picture of symbols on the first screen
+    ================================================== */
+
+    /*
+      The first screen is a picture made of symbols (a piece of
+      terrain seen at an angle, cut like a block), drawn on a
+      canvas. The screen stays in place (sticky) while the page
+      scrolls through the track. The scroll spreads the picture
+      to the left and to the right edge; METHOD and the line
+      under it are two rows of the same grid: they stay where
+      they are and show through as the symbols leave.
+    */
+    .hero-track {
+      position: relative;
+      height: 240vh;
+    }
+
+    .hero-stage {
+      position: sticky;
+      top: 0;
+
+      height: 100vh;
+      height: 100svh;
+
+      overflow: hidden;
+    }
+
+    .intro-canvas {
+      position: absolute;
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      pointer-events: none;
+    }
+
+    /* the title and the line are drawn on the canvas; these two
+       are the same words for screen readers and search engines */
+    .visually-hidden {
+      position: absolute;
+
+      width: 1px;
+      height: 1px;
+
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    /*
+      Texts that appear letter by letter, at once (as if a mask
+      were taken off): the script cuts a text into letters,
+      every letter is its own box, hidden until its turn. The
+      container gets the class "on" and each letter switches on
+      after its own random delay (--d); no fade, a hard cut.
+    */
+    .ch {
+      opacity: 0;
+    }
+
+    .on .ch {
+      animation: unmask 1ms steps(1, end) both;
+      animation-delay: var(--d, 0ms);
+    }
+
+    @keyframes unmask {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* a word never breaks in the middle */
+    .wd {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ch { opacity: 1; }
+      .on .ch { animation: none; }
+    }
+
+    /* the sides must not scroll while letters wait outside */
+    main {
+      overflow-x: clip;
+    }
+
+
+    /* ==================================================
+       SECTIONS (normal scrolling, as after the scene on
+       cut2.tools)
+    ================================================== */
+
+    .page-section {
+      padding: 64px 28px;
+
+      /* a jump from the header stops with the section right
+         under the header */
+      scroll-margin-top: var(--header-h);
+    }
+
+    .section-title:focus {
+      outline: none;
+    }
+
+    .section-title {
+      margin: 0 0 28px;
+
+      text-align: center;
+
+      font-size: var(--display);
+      font-weight: 400;
+      line-height: 1.3;
+      letter-spacing: 0;
+
+      text-transform: uppercase;
+    }
+
+    /* small texts of the sections: ordinary letters, not capitals */
+    .section-small {
+      font-size: 11px;
+      font-weight: 400;
+
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* underline also under the words cut into letters */
+    .text-link .wd {
+      text-decoration: inherit;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .text-link {
+      color: inherit;
+
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .page-section a:focus,
+    .page-section button:focus {
+      outline: none;
+    }
+
+    .page-section a:focus-visible,
+    .page-section button:focus-visible {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    .page-section a,
+    .page-section button {
+      scroll-margin-top: calc(var(--header-h) + 24px);
+    }
+
+
+    /* ==================================================
+       PROJECTS: a grid of equal squares, edge to edge
+    ================================================== */
+
+    /*
+      Every picture is a square cell; the cells fill the whole
+      width of the page without gaps. A click opens a picture
+      across the whole width, right under the title; the other
+      cells stay as they were and move down under it. A click on
+      the open picture closes it. No animation. The cells are
+      built from PROJECTS_SETTINGS.
+    */
+    #projects {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    #projects .section-title {
+      padding: 0 28px;
+    }
+
+    .gallery {
+      --cols: var(--cols-desktop, 4);
+
+      display: grid;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+      gap: var(--gap, 0px);
+    }
+
+    .gallery-item {
+      display: block;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+
+      aspect-ratio: 1;
+      overflow: hidden;
+
+      background: #e7e3d8;
+      color: inherit;
+      font: inherit;
+
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .gallery-item img {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+    }
+
+    /* the open picture: the whole row, first, in its own shape */
+    .gallery-item.is-open {
+      grid-column: 1 / -1;
+      order: -1;
+
+      aspect-ratio: auto;
+    }
+
+    .gallery-item.is-open img {
+      height: auto;
+    }
+
+    /* an empty place before the real picture arrives */
+    .gallery-item.is-empty {
+      background: none;
+      box-shadow: inset 0 0 0 1px #000;
+    }
+
+    .gallery-item.is-empty.is-open {
+      aspect-ratio: 3 / 2;
+    }
+
+    .gallery-item:focus {
+      outline: none;
+    }
+
+    .gallery-item:focus-visible {
+      outline: 2px solid #000;
+      outline-offset: -4px;
+    }
+
+
+    /* ==================================================
+       METHOD / ABOUT (text)
+    ================================================== */
+
+    .text-block {
+      max-width: 640px;
+      margin: 0 auto;
+
+      text-align: center;
+    }
+
+    .text-lead {
+      margin: 0 0 28px;
+
+      font-size: clamp(14px, 1.3vw, 18px);
+      line-height: 1.45;
+      font-weight: 400;
+    }
+
+    .text-block p {
+      margin: 0 0 20px;
+
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .text-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* people in ABOUT: one under another, in the middle */
+    .people {
+      margin: 40px 0 0;
+      padding: 0;
+
+      list-style: none;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    .person {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      gap: 12px;
+
+      text-align: center;
+    }
+
+
+    /* ==================================================
+       CONTACT (the same as on cut2.tools)
+    ================================================== */
+
+    .contact-intro {
+      margin: 0 0 28px;
+
+      text-align: center;
+    }
+
+    .contact-list {
+      margin: 0;
+      padding: 0;
+
+      list-style: none;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      gap: 12px;
+
+      text-align: center;
+    }
+
+    .contact-value {
+      overflow-wrap: anywhere;
+    }
+
+    .contact-empty {
+      margin: 0;
+
+      text-align: center;
+    }
+
+    /* the last section ends with the same space as it starts */
+    .contact-section {
+      min-height: 60vh;
+    }
+
+
+    /* ==================================================
+       MOBILE
+    ================================================== */
+
+    @media (max-width: 700px) {
+
+      /* phone browsers move their address bar while the page
+         scrolls; the stage keeps the largest height (100lvh) so
+         the picture does not jump */
+      .hero-track {
+        height: 240vh;
+        height: 240lvh;
+      }
+
+      .hero-stage {
+        height: 100vh;
+        height: 100lvh;
+      }
+
+      :root {
+        --header-h: 44px;
+        --sym: max(8.5px, calc(min(100vw, 1200px) * 0.0095));
+      }
+
+      header {
+        padding: 0 16px;
+        grid-template-columns: auto 1fr auto;
+      }
+
+      /* the sections spread evenly between the name and the language */
+      .site-nav {
+        justify-content: space-evenly;
+        gap: 8px;
+      }
+
+      .page-section {
+        padding: 52px 16px;
+      }
+
+      .section-small {
+        font-size: 10px;
+      }
+
+      #projects .section-title {
+        padding: 0 16px;
+      }
+
+      .gallery {
+        --cols: var(--cols-phone, 2);
+      }
+
+      .text-lead {
+        font-size: 14px;
+      }
+
+      .text-block p {
+        font-size: 13px;
+      }
+
+      .people {
+        margin-top: 32px;
+      }
+
+      .contact-intro {
+        margin-bottom: 20px;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+<script>
+  /* styles for the opening animation apply only when scripts run;
+     if the main script has not finished in 3 seconds (an error),
+     they are switched off so nothing stays hidden */
+  document.documentElement.classList.add("js");
+
+  setTimeout(
+    function () {
+      if (!window.__methodReady) {
+        document.documentElement.classList.remove("js");
+      }
+    },
+    3000
+  );
+</script>
+
+
+<header>
+
+  <!-- the name is not translated -->
+  <a class="logo" href="#" id="homeLink"><span class="logo-text" data-mask data-i18n="logoText">METHOD</span></a>
+
+  <nav class="site-nav" aria-label="Sections" data-i18n-aria="navLabel">
+    <a href="#projects" lang="en" data-nav="projects" data-i18n-aria="navProjects" aria-label="Projects"><span class="nav-text" data-mask data-i18n="projectsTitle">PROJECTS</span></a>
+    <a href="#method" lang="en" data-nav="method" data-i18n-aria="navMethod" aria-label="Method"><span class="nav-text" data-mask data-i18n="methodTitle">METHOD</span></a>
+    <a href="#about" lang="en" data-nav="about" data-i18n-aria="navAbout" aria-label="About"><span class="nav-text" data-mask data-i18n="aboutTitle">ABOUT</span></a>
+    <a href="#contact" lang="en" data-nav="contact" data-i18n-aria="navContact" aria-label="Contact"><span class="nav-text" data-mask data-i18n="contactTitle">CONTACT</span></a>
+  </nav>
+
+  <button
+    type="button"
+    class="lang-button"
+    id="langButton"
+  ><span class="lang-text" id="langText" data-mask>RU</span></button>
+
+</header>
+
+
+<main>
+
+  <!-- ==================================================
+       HERO
+       ================================================== -->
+
+  <section class="hero-track" id="heroTrack" aria-labelledby="heroTitle">
+
+    <div class="hero-stage" id="heroStage">
+
+      <canvas class="intro-canvas" id="introCanvas" aria-hidden="true"></canvas>
+
+      <!-- the same words are drawn on the canvas with symbols -->
+      <h1 class="visually-hidden" id="heroTitle" data-i18n="logoText">METHOD</h1>
+      <p class="visually-hidden" data-i18n="heroSub">LANDSCAPE ARCHITECTURE.</p>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==================================================
+       PROJECTS (built from PROJECTS_SETTINGS)
+       ================================================== -->
+
+  <section class="page-section" id="projects" aria-labelledby="projectsTitle">
+
+    <h2 class="section-title" data-mask id="projectsTitle" data-i18n="projectsTitle" tabindex="-1">PROJECTS</h2>
+
+    <div class="gallery" id="gallery"></div>
+
+  </section>
+
+
+  <!-- ==================================================
+       METHOD
+       ================================================== -->
+
+  <section class="page-section" id="method" aria-labelledby="methodTitle">
+
+    <h2 class="section-title" data-mask id="methodTitle" data-i18n="methodTitle" tabindex="-1">METHOD</h2>
+
+    <div class="text-block" id="methodBody"></div>
+
+  </section>
+
+
+  <!-- ==================================================
+       ABOUT
+       ================================================== -->
+
+  <section class="page-section" id="about" aria-labelledby="aboutTitle">
+
+    <h2 class="section-title" data-mask id="aboutTitle" data-i18n="aboutTitle" tabindex="-1">ABOUT</h2>
+
+    <div class="text-block" id="aboutBody"></div>
+
+    <ul class="people" id="people"></ul>
+
+  </section>
+
+
+  <!-- ==================================================
+       CONTACT (built from CONTACT_SETTINGS)
+       ================================================== -->
+
+  <section class="page-section contact-section" id="contact" aria-labelledby="contactTitle">
+
+    <h2 class="section-title" data-mask id="contactTitle" data-i18n="contactTitle" tabindex="-1">CONTACT</h2>
+
+    <p class="contact-intro section-small" id="contactIntro"></p>
+
+    <div id="contactBody"></div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+  /* ==================================================
+     SETTINGS: LANGUAGE BUTTON (top right of the header)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    One page in two languages; the button switches between them
+    at once, without reloading (as on cut2.tools).
+
+    defaultLang    language when nothing else says otherwise
+    autoDetect     true = a browser set to Russian opens the
+                   Russian page (only if nothing else is set)
+    labels         text on the button for each current language:
+                   it names the language the button switches to
+    storageKey     name under which the browser remembers the
+                   chosen language
+
+    Which language opens:
+      1) ?lang=ru or ?lang=en in the address (only for this
+         visit, it does not change what is remembered);
+      2) the language chosen earlier with the button;
+      3) defaultLang.
+  */
+
+  const LANG_SETTINGS = {
+    defaultLang: "en",
+    autoDetect: false,
+    labels: { en: "RU", ru: "EN" },
+    storageKey: "method-lang"
+  };
+
+
+  /* ==================================================
+     SETTINGS: HOW THE PAGE SCROLLS TO A SECTION
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    scrollMs   how long a jump from the header takes,
+               milliseconds (0 = at once, as on cut2.tools).
+               Ignored with "reduce motion".
+  */
+
+  const NAV_SETTINGS = {
+    scrollMs: 0
+  };
+
+
+  /* ==================================================
+     SETTINGS: PROJECTS (the gallery)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    The grid of pictures: equal squares, edge to edge. A click
+    opens a picture across the whole width right under the title,
+    the others move down; a click on the open one closes it.
+
+    columns       how many squares in a row (desktop / phone)
+    gap           space between the squares, pixels (0 = none)
+    placeholders  how many empty frames to show while there are
+                  no pictures in the list
+    images        the pictures, in the order of the grid. Every
+                  one is a file name inside the folder projects/
+                  (next to index.html), for example "01.jpg", or
+                  { src: "01.jpg", alt: "what is shown" }.
+                  A picture should be a JPG about 2000 px wide
+                  (the same file is the square and the big view).
+  */
+
+  const PROJECTS_SETTINGS = {
+
+    columns: { desktop: 4, phone: 2 },
+    gap: 0,
+    placeholders: 12,
+
+    folder: "projects/",
+
+    images: [
+      /* "01.jpg", "02.jpg", … */
+    ]
+
+  };
+
+
+  /* ==================================================
+     SETTINGS: ABOUT (the people)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    One line per person under the ABOUT text:
+      name      the name (English and Russian)
+      role      what the person does (English and Russian)
+  */
+
+  const PEOPLE = [
+
+    { name: { en: "Anton Bratkov", ru: "Антон Братков" },  role: { en: "Landscape architect",                    ru: "Ландшафтный архитектор" } },
+    { name: { en: "Roma Kaigorodov", ru: "Рома Кайгородов" },   role: { en: "Street furniture and play equipment",    ru: "Уличная мебель и игровое оборудование" } },
+    { name: { en: "Natasha Matsenko", ru: "Наташа Маценко" }, role: { en: "[Role]",                                ru: "[Роль]" } }
+
+  ];
+
+
+  /* ==================================================
+     SETTINGS: CONTACT
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    One row per contact:
+      label   small text before the value (optional)
+      value   what is shown (a row with an empty value is not
+              shown; with no rows the section says
+              contactsComingSoon)
+      href    the link (optional; an e-mail address gets
+              mailto: by itself)
+  */
+
+  const CONTACT_SETTINGS = [
+
+    { label: "", value: "hello@method.land", href: "" }
+
+  ];
+
+
+  /* ==================================================
+     TEXTS IN TWO LANGUAGES
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Every text of the page that changes with the language.
+    Big words and small captions are shown in capitals by the
+    CSS anyway; write the short ones in capitals here too.
+    The METHOD and ABOUT texts are lists of paragraphs: the
+    first one is the large line at the top.
+    The name of the bureau is translated too (logoText).
+  */
+
+  const I18N = {
+
+    en: {
+      logoText: "METHOD",
+      pageTitle: "METHOD — landscape architecture",
+
+      langButtonAria: "Russian version",
+      langButtonAriaLang: "ru",
+
+      navLabel: "Sections",
+      navProjects: "Projects",
+      navMethod: "Method",
+      navAbout: "About",
+      navContact: "Contact",
+
+      projectsTitle: "PROJECTS",
+      methodTitle: "METHOD",
+      aboutTitle: "ABOUT",
+      contactTitle: "CONTACT",
+
+      heroSub: "LANDSCAPE ARCHITECTURE.",
+
+      method: [
+        "METHOD is a way of turning observation into a design decision.",
+        "We look at how space is perceived, used and experienced — through movement, sequence, scale, material, sound and time.",
+        "Rather than treating these effects as intuition alone, METHOD breaks them down into specific spatial decisions that can be tested, described and reproduced."
+      ],
+
+      about: [
+        "METHOD is a landscape architecture practice started by Anton, Roma and Natasha."
+      ],
+
+      contactIntro: "For projects and collaborations",
+      contactsComingSoon: "Contacts coming soon"
+    },
+
+    ru: {
+      logoText: "МЕТОД",
+      pageTitle: "МЕТОД — ландшафтная архитектура",
+
+      langButtonAria: "English version",
+      langButtonAriaLang: "en",
+
+      navLabel: "Разделы",
+      navProjects: "Проекты",
+      navMethod: "Метод",
+      navAbout: "О бюро",
+      navContact: "Контакты",
+
+      projectsTitle: "ПРОЕКТЫ",
+      methodTitle: "МЕТОД",
+      aboutTitle: "О БЮРО",
+      contactTitle: "КОНТАКТЫ",
+
+      heroSub: "ЛАНДШАФТНАЯ АРХИТЕКТУРА.",
+
+      method: [
+        "МЕТОД — это способ превращать наблюдение в проектное решение.",
+        "Мы смотрим, как пространство воспринимается, используется и переживается — через движение, последовательность, масштаб, материал, звук и время.",
+        "Мы не оставляем эти эффекты на уровне интуиции: МЕТОД раскладывает их на конкретные пространственные решения, которые можно проверить, описать и повторить."
+      ],
+
+      about: [
+        "МЕТОД — бюро ландшафтной архитектуры, которое начали Антон, Рома и Наташа."
+      ],
+
+      contactIntro: "Для проектов и сотрудничества",
+      contactsComingSoon: "Контакты скоро"
+    }
+
+  };
+
+
+  /* ==================================================
+     LANGUAGE: which one opens, and how texts are found
+  ================================================== */
+
+  function storedLang() {
+    try {
+      const value = window.localStorage.getItem(LANG_SETTINGS.storageKey);
+      return value === "en" || value === "ru" ? value : null;
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
+  function storeLang(lang) {
+    try {
+      window.localStorage.setItem(LANG_SETTINGS.storageKey, lang);
+    }
+    catch (error) {
+      /* the browser does not allow storage: the language
+         still changes, it is only not remembered */
+    }
+  }
+
+  function startLang() {
+
+    try {
+      const fromAddress = new URLSearchParams(window.location.search).get("lang");
+      if (fromAddress === "en" || fromAddress === "ru") {
+        return fromAddress;
+      }
+    }
+    catch (error) {
+      /* no address parameters here */
+    }
+
+    const saved = storedLang();
+
+    if (saved) {
+      return saved;
+    }
+
+    if (LANG_SETTINGS.autoDetect &&
+        /^ru\b/i.test(navigator.language || "")) {
+      return "ru";
+    }
+
+    return LANG_SETTINGS.defaultLang;
+
+  }
+
+  let currentLang = startLang();
+
+  function t(key) {
+    const table = I18N[currentLang];
+    return table && key in table ? table[key] : I18N.en[key];
+  }
+
+
+  /* ==================================================
+     PROJECTS: the gallery from PROJECTS_SETTINGS
+  ================================================== */
+
+  function buildGallery() {
+
+    const gallery = document.getElementById("gallery");
+
+    gallery.replaceChildren();
+
+    gallery.style.setProperty("--cols-desktop", String(PROJECTS_SETTINGS.columns.desktop));
+    gallery.style.setProperty("--cols-phone", String(PROJECTS_SETTINGS.columns.phone));
+    gallery.style.setProperty("--gap", PROJECTS_SETTINGS.gap + "px");
+
+    const list = PROJECTS_SETTINGS.images.length
+      ? PROJECTS_SETTINGS.images
+      : Array.from({ length: PROJECTS_SETTINGS.placeholders }, () => "");
+
+    const cells = [];
+
+    function close() {
+      cells.forEach(
+        (cell) => {
+          cell.classList.remove("is-open");
+          cell.setAttribute("aria-expanded", "false");
+        }
+      );
+    }
+
+    list.forEach(
+      (entry, index) => {
+
+        const picture = typeof entry === "string" ? { src: entry } : entry;
+
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "gallery-item";
+        cell.setAttribute("aria-expanded", "false");
+        cell.setAttribute("aria-label", "Project " + (index + 1));
+
+        if (picture.src) {
+
+          const image = document.createElement("img");
+          image.src = PROJECTS_SETTINGS.folder + picture.src;
+          image.alt = picture.alt || "";
+          image.loading = "lazy";
+          image.decoding = "async";
+
+          cell.appendChild(image);
+
+        }
+        else {
+          cell.classList.add("is-empty");
+        }
+
+        cell.addEventListener(
+          "click",
+          () => {
+
+            /* a click on the open picture closes it */
+            if (cell.classList.contains("is-open")) {
+              close();
+              return;
+            }
+
+            close();
+
+            cell.classList.add("is-open");
+            cell.setAttribute("aria-expanded", "true");
+
+            const image = cell.querySelector("img");
+            if (image) {
+              image.loading = "eager";
+            }
+
+            /* the open picture is the first one under the title:
+               the page shows the title and the picture */
+            const section = document.getElementById("projects");
+            const header = document.querySelector("header");
+
+            window.scrollTo(
+              0,
+              section.getBoundingClientRect().top + window.scrollY - header.offsetHeight
+            );
+
+          }
+        );
+
+        cells.push(cell);
+        gallery.appendChild(cell);
+
+      }
+    );
+
+  }
+
+  buildGallery();
+
+
+  /* ==================================================
+     METHOD and ABOUT: paragraphs from I18N
+     ABOUT: the people under the text
+  ================================================== */
+
+  function fillParagraphs(containerId, key) {
+
+    const container = document.getElementById(containerId);
+
+    container.replaceChildren();
+
+    t(key).forEach(
+      (text, index) => {
+
+        const element = document.createElement("p");
+
+        if (index === 0) {
+          element.className = "text-lead";
+        }
+
+        element.textContent = text;
+        container.appendChild(element);
+
+      }
+    );
+
+  }
+
+  function buildPeople() {
+
+    const list = document.getElementById("people");
+
+    list.replaceChildren();
+
+    PEOPLE.forEach(
+      (person) => {
+
+        const item = document.createElement("li");
+        item.className = "person section-small";
+
+        const name = document.createElement("span");
+        name.textContent = person.name[currentLang] || person.name.en;
+
+        const role = document.createElement("span");
+        role.textContent = person.role[currentLang] || person.role.en;
+
+        item.appendChild(name);
+        item.appendChild(role);
+        list.appendChild(item);
+
+      }
+    );
+
+  }
+
+  function buildTexts() {
+    fillParagraphs("methodBody", "method");
+    fillParagraphs("aboutBody", "about");
+    buildPeople();
+  }
+
+  buildTexts();
+
+
+  /* ==================================================
+     CONTACT: rows from CONTACT_SETTINGS
+  ================================================== */
+
+  function buildContact() {
+
+    const body = document.getElementById("contactBody");
+
+    body.replaceChildren();
+
+    document.getElementById("contactIntro").textContent =
+      t("contactIntro");
+
+    const rows =
+      CONTACT_SETTINGS.filter((row) => row.value && row.value.trim());
+
+    if (!rows.length) {
+
+      const empty = document.createElement("p");
+      empty.className = "contact-empty section-small";
+      empty.textContent = t("contactsComingSoon");
+
+      body.appendChild(empty);
+      return;
+
+    }
+
+    const list = document.createElement("ul");
+    list.className = "contact-list";
+
+    rows.forEach(
+      (row) => {
+
+        const item = document.createElement("li");
+        item.className = "contact-row section-small";
+
+        if (row.label) {
+          const label = document.createElement("span");
+          label.textContent = row.label;
+          item.appendChild(label);
+        }
+
+        let href = (row.href || "").trim();
+
+        if (!href && /^[^\s@]+@[^\s@]+$/.test(row.value.trim())) {
+          href = "mailto:" + row.value.trim();
+        }
+
+        let value;
+
+        if (href) {
+
+          value = document.createElement("a");
+          value.className = "text-link";
+          value.href = href;
+
+          if (!href.startsWith("mailto:")) {
+            value.target = "_blank";
+            value.rel = "noopener";
+          }
+
+        }
+        else {
+          value = document.createElement("span");
+        }
+
+        value.classList.add("contact-value");
+        value.textContent = row.value;
+
+        item.appendChild(value);
+        list.appendChild(item);
+
+      }
+    );
+
+    body.appendChild(list);
+
+  }
+
+  buildContact();
+
+
+  /* ==================================================
+     SETTINGS: LETTERS APPEARING
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Every text of the page (the menu, the titles, the paragraphs)
+    appears the same way as METHOD on the first screen: letter by
+    letter, at once, as if a mask were taken off each letter. No
+    fade, no movement. Every letter gets its own random moment.
+
+    A letter's moment = its place in the text * step (but no more
+    than cap) + a random part up to jitter. All in milliseconds.
+
+    short   titles and the menu (less than longLength letters)
+    long    paragraphs: a text is open to the end in about
+            cap + jitter milliseconds, however long it is
+  */
+
+  const MASK_SETTINGS = {
+    longLength: 40,
+    short: { step: 40, cap: 240, jitter: 520 },
+    long:  { step: 4,  cap: 700, jitter: 420 }
+  };
+
+  const REDUCE_MOTION =
+    !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+
+  /* ==================================================
+     LETTERS APPEARING: cutting texts into letters and
+     taking the mask off
+  ================================================== */
+
+  /*
+    Cuts the text of the element into words (never broken in the
+    middle) and letters (hidden until the element gets the class
+    "on"). Links and other markup inside stay as they are.
+  */
+  function splitMask(element) {
+
+    const nodes = [];
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode);
+    }
+
+    const total = nodes.reduce(
+      (sum, node) => sum + Array.from(node.nodeValue.replace(/\s/g, "")).length,
+      0
+    );
+
+    const look = total < MASK_SETTINGS.longLength ? MASK_SETTINGS.short : MASK_SETTINGS.long;
+
+    let index = 0;
+
+    nodes.forEach(
+      (node) => {
+
+        const parts = node.nodeValue.split(/(\s+)/);
+        const fragment = document.createDocumentFragment();
+
+        parts.forEach(
+          (part) => {
+
+            if (part === "") {
+              return;
+            }
+
+            if (/^\s+$/.test(part)) {
+              fragment.appendChild(document.createTextNode(part));
+              return;
+            }
+
+            const word = document.createElement("span");
+            word.className = "wd";
+
+            Array.from(part).forEach(
+              (character) => {
+
+                const letter = document.createElement("span");
+
+                const delay =
+                  Math.min(index * look.step, look.cap) + Math.random() * look.jitter;
+
+                letter.className = "ch";
+                letter.style.setProperty("--d", Math.round(delay) + "ms");
+                letter.textContent = character;
+
+                word.appendChild(letter);
+
+                index++;
+
+              }
+            );
+
+            fragment.appendChild(word);
+
+          }
+        );
+
+        node.parentNode.replaceChild(fragment, node);
+
+      }
+    );
+
+  }
+
+  /* the mask comes off: the letters switch on, one by one */
+  function revealMask(element) {
+
+    element.dataset.revealed = "1";
+    element.classList.add("on");
+
+  }
+
+  let maskWatcher = null;
+
+  if (!REDUCE_MOTION && "IntersectionObserver" in window) {
+
+    maskWatcher = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(
+          (entry) => {
+            if (entry.isIntersecting) {
+              revealMask(entry.target);
+              maskWatcher.unobserve(entry.target);
+            }
+          }
+        );
+      },
+      { rootMargin: "0px 0px -12% 0px" }
+    );
+
+  }
+
+  /*
+    Cuts every marked text (data-mask) into letters. Called again
+    whenever texts are rebuilt (language change): a text that was
+    already shown comes back letter by letter, one that was not
+    yet reached keeps waiting for its turn.
+  */
+  function prepareMasks() {
+
+    if (REDUCE_MOTION) {
+      return;
+    }
+
+    document.querySelectorAll("[data-mask]").forEach(
+      (element) => {
+
+        splitMask(element);
+
+        if (element.dataset.revealed === "1") {
+          return;
+        }
+
+        if (element.closest("header")) {
+
+          /* the header does not wait for a scroll */
+          requestAnimationFrame(() => revealMask(element));
+          return;
+
+        }
+
+        if (maskWatcher) {
+          maskWatcher.observe(element);
+        }
+        else {
+          revealMask(element);
+        }
+
+      }
+    );
+
+  }
+
+  prepareMasks();
+
+  /* the title is ready: the page may show it */
+  document.documentElement.classList.add("ready");
+
+
+  /* ==================================================
+     LANGUAGE BUTTON
+  ================================================== */
+
+  const langButton = document.getElementById("langButton");
+  const langText = document.getElementById("langText");
+
+  function setupLangButton() {
+
+    langText.textContent = LANG_SETTINGS.labels[currentLang];
+
+    /* what a screen reader says: the language it switches to,
+       in that language */
+    langButton.setAttribute("aria-label", t("langButtonAria"));
+    langButton.setAttribute("lang", t("langButtonAriaLang"));
+
+  }
+
+  /* puts the whole page into "lang" at once; the scroll
+     position stays */
+  function applyLanguage(lang) {
+
+    currentLang = lang;
+
+    document.documentElement.lang = lang;
+    document.title = t("pageTitle");
+
+    document.querySelectorAll("[data-i18n]").forEach(
+      (element) => {
+        element.textContent = t(element.dataset.i18n);
+      }
+    );
+
+    document.querySelectorAll("[data-i18n-aria]").forEach(
+      (element) => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAria));
+      }
+    );
+
+    document.querySelectorAll(".site-nav a").forEach(
+      (link) => { link.setAttribute("lang", lang); }
+    );
+
+    setupLangButton();
+    buildTexts();
+    buildContact();
+
+    /* the new texts are cut into letters again */
+    prepareMasks();
+
+    /* the band of the header and the line under METHOD are
+       drawn with symbols: they need the new words */
+    document.dispatchEvent(new Event("methodlanguage"));
+
+  }
+
+  /* the button: the other language, remembered, and the
+     address updated (?lang=…) without reloading */
+  function switchLanguage() {
+
+    const next = currentLang === "en" ? "ru" : "en";
+
+    applyLanguage(next);
+    storeLang(next);
+
+    try {
+      const address = new URL(window.location.href);
+      address.searchParams.set("lang", next);
+      window.history.replaceState(window.history.state, "", address.toString());
+    }
+    catch (error) {
+      /* the address can not be changed here: the language
+         still works */
+    }
+
+  }
+
+  langButton.addEventListener("click", switchLanguage);
+
+
+  /* ==================================================
+     HEADER LINKS: jump to a section (or to the top)
+     (the same as on cut2.tools)
+  ================================================== */
+
+  const NAV_SECTIONS = ["projects", "method", "about", "contact"];
+
+  /* where the page has to stop: the top of the section right
+     under the header, measured now (not remembered); never
+     further than the page can scroll */
+  function navTargetY(id) {
+
+    if (!id) {
+      return 0;
+    }
+
+    const section = document.getElementById(id);
+    const headerBottom = document.querySelector("header").getBoundingClientRect().bottom;
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    const y = section.getBoundingClientRect().top + window.scrollY - headerBottom;
+
+    return Math.max(0, Math.min(Math.round(y), Math.floor(maxY)));
+
+  }
+
+  let navAnimation = null;
+
+  function stopNavAnimation() {
+    if (navAnimation) {
+      cancelAnimationFrame(navAnimation.frame);
+      navAnimation = null;
+    }
+  }
+
+  /* a visitor who scrolls takes over at once */
+  ["wheel", "touchstart"].forEach(
+    (type) => window.addEventListener(type, stopNavAnimation, { passive: true })
+  );
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+        stopNavAnimation();
+      }
+    }
+  );
+
+  function scrollPageTo(y, done) {
+
+    stopNavAnimation();
+
+    const reduce =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!(NAV_SETTINGS.scrollMs > 0) || reduce) {
+      window.scrollTo(0, y);
+      done();
+      return;
+    }
+
+    const from = window.scrollY;
+    const start = performance.now();
+    const length = NAV_SETTINGS.scrollMs;
+
+    const step = (now) => {
+      const k = Math.min(1, (now - start) / length);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      window.scrollTo(0, Math.round(from + (y - from) * e));
+      if (k < 1) {
+        navAnimation.frame = requestAnimationFrame(step);
+      }
+      else {
+        navAnimation = null;
+        done();
+      }
+    };
+
+    navAnimation = { frame: requestAnimationFrame(step) };
+
+  }
+
+  /*
+    Goes to a section (or to the top when id is empty), puts the
+    keyboard on the section title and writes #section into the
+    address (or removes it) without a new history entry; ?lang
+    and the rest of the address stay.
+  */
+  function navigateTo(id, options) {
+
+    const opts = options || {};
+
+    scrollPageTo(
+      navTargetY(id),
+      () => {
+
+        if (id && opts.focus !== false) {
+          const title = document.getElementById(id).querySelector(".section-title");
+          if (title) {
+            title.focus({ preventScroll: true });
+          }
+        }
+
+        if (opts.address !== false) {
+          try {
+            const address = new URL(window.location.href);
+            address.hash = id ? "#" + id : "";
+            window.history.replaceState(window.history.state, "", address.toString());
+          }
+          catch (error) {
+            /* the address can not be changed here: the jump still works */
+          }
+        }
+
+      }
+    );
+
+  }
+
+  /* clicks: a normal click jumps; a click with Ctrl / Cmd /
+     Shift or the middle button does what the browser does */
+  const navClick = (id) => (event) => {
+
+    if (event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateTo(id);
+
+  };
+
+  document.getElementById("homeLink").addEventListener("click", navClick(""));
+
+  document.querySelectorAll(".site-nav a").forEach(
+    (link) => link.addEventListener("click", navClick(link.dataset.nav))
+  );
+
+  /*
+    Opened with #projects, #method, #about or #contact in the
+    address: once the fonts are loaded and the pictures have
+    their places, the page is put exactly on the section, once.
+    A normal reload or back / forward keeps the place the
+    browser restores.
+  */
+  (() => {
+
+    const id = window.location.hash.slice(1);
+
+    if (!NAV_SECTIONS.includes(id)) {
+      return;
+    }
+
+    let kind = "navigate";
+
+    try {
+      const entry = performance.getEntriesByType("navigation")[0];
+      kind = entry ? entry.type : "navigate";
+    }
+    catch (error) {
+      kind = "navigate";
+    }
+
+    if (kind === "reload" || kind === "back_forward") {
+      return;
+    }
+
+    const fontsReady =
+      document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+
+    fontsReady.then(
+      () => requestAnimationFrame(
+        () => requestAnimationFrame(
+          () => navigateTo(id, { address: false })
+        )
+      )
+    );
+
+  })();
+
+
+  /* the page opens in the detected language */
+  if (currentLang !== "en") {
+    applyLanguage(currentLang);
+  }
+  else {
+    setupLangButton();
+  }
+
+
+  /* ==================================================
+     SETTINGS: THE PICTURE OF SYMBOLS (header and first screen)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Everything on the first screen is made of the same symbols
+    and sits in the same grid of cells: the band of the header
+    (rows of dots with the names of the sections in the middle
+    row), the picture below it (a block of terrain seen at an
+    angle: the surface, and the two front faces cut vertically,
+    drawn with lines), and two rows of the picture that are
+    really text: METHOD and the line under it.
+
+    When the page opens, the picture stands still and covers the
+    two text rows. Scrolling spreads it: the two halves slide out
+    to the left and to the right edge of the screen (every symbol
+    has its own random delay and speed). METHOD and the line stay
+    where they are and show through as the symbols leave: METHOD
+    first, the line under it second. Scrolling back puts the
+    picture together again. The page scrolls through a track 240vh
+    tall (see .hero-track in the styles); the screen stays in
+    place meanwhile.
+
+    split          the picture is gone at this share of the scroll
+                   through the track (0 = the top, 1 = the end)
+    seed           which terrain it is (any number gives another)
+    cellDivisor    how many symbols fit across the terrain
+                   (bigger = finer symbols)
+    minCell        the smallest width of one symbol, pixels
+    tilt           how steep the view of the terrain is: 0.5 =
+                   like a map seen at an angle, bigger = steeper
+    height         how tall the mountains are, as a share of the
+                   width of the terrain
+    wall           how tall the cut faces under the terrain are,
+                   as a share of its width
+    width          how much of the screen width the terrain takes
+    bottomGap      free room under the picture, as a share of the
+                   screen height
+
+    Diagnostics in the address: ?introP=0.5 shows the picture at
+    that scroll share and stops; ?introSeed=5 tries another
+    terrain.
+  */
+
+  const INTRO_SETTINGS = {
+    split: 0.8,
+
+    seed: 3,
+    cellDivisor: 165,
+
+    desktop: { minCell: 4,   bottomGap: 0.1,  tilt: 0.6,  height: 0.2,  wall: 0.08, width: 0.9 },
+    phone:   { minCell: 5.2, bottomGap: 0.12, tilt: 0.95, height: 0.42, wall: 0.14, width: 0.96 }
+  };
+
+
+  /* ==================================================
+     THE PICTURE: the first screen, drawn on a canvas
+     with symbols
+  ================================================== */
+
+  (() => {
+
+    const root = document.documentElement;
+    const header = document.querySelector("header");
+    const track = document.getElementById("heroTrack");
+    const stage = document.getElementById("heroStage");
+    const canvas = document.getElementById("introCanvas");
+
+    const ctx = canvas ? canvas.getContext("2d") : null;
+
+    /* no canvas: the page stays plain (black header, the words
+       of the first screen are shown as text) */
+    if (!ctx) {
+
+      if (canvas) {
+        canvas.remove();
+      }
+
+      stage.querySelectorAll(".visually-hidden").forEach(
+        (element) => element.classList.remove("visually-hidden")
+      );
+
+      return;
+
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const forcedProgress = params.get("introP");
+
+    const INK = "#000";
+    const PAPER = "#f3f0e8";
+
+    /* the fonts: the Latin and the Cyrillic file */
+    const FONT_FAMILY = '"IBM Plex Mono", "Courier New", monospace';
+
+
+    /* ---------- the terrain (a height for every point) ---------- */
+
+    /* a small random-number generator: the same seed gives the
+       same picture every time */
+    function mulberry(seed) {
+      let a = seed >>> 0;
+      return () => {
+        a = (a + 0x6D2B79F5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    const seedFromAddress = Number(params.get("introSeed"));
+    const random = mulberry(seedFromAddress || INTRO_SETTINGS.seed);
+
+    /* smooth noise from a table of random values */
+    const LATTICE = 64;
+    const lattice = new Float32Array(LATTICE * LATTICE);
+
+    for (let i = 0; i < lattice.length; i++) {
+      lattice[i] = random();
+    }
+
+    function noise(x, y) {
+
+      const xi = Math.floor(x);
+      const yi = Math.floor(y);
+      const xf = x - xi;
+      const yf = y - yi;
+
+      const u = xf * xf * (3 - 2 * xf);
+      const v = yf * yf * (3 - 2 * yf);
+
+      const at = (a, b) => lattice[((b & (LATTICE - 1)) * LATTICE) + (a & (LATTICE - 1))];
+
+      const top = at(xi, yi) + (at(xi + 1, yi) - at(xi, yi)) * u;
+      const bottom = at(xi, yi + 1) + (at(xi + 1, yi + 1) - at(xi, yi + 1)) * u;
+
+      return top + (bottom - top) * v;
+
+    }
+
+    function fbm(x, y, octaves) {
+
+      let amplitude = 0.5;
+      let frequency = 1;
+      let sum = 0;
+
+      for (let octave = 0; octave < octaves; octave++) {
+        sum += amplitude * noise(x * frequency, y * frequency);
+        frequency *= 2;
+        amplitude *= 0.5;
+      }
+
+      return sum;
+
+    }
+
+    const phoneAtStart = window.innerWidth <= 700;
+    const GRID = phoneAtStart ? 230 : 320;
+
+    const heights = new Float32Array(GRID * GRID);
+    const lights = new Float32Array(GRID * GRID);
+    const worldX = new Float32Array(GRID * GRID);
+    const worldY = new Float32Array(GRID * GRID);
+
+    (() => {
+
+      const ox = random() * 20;
+      const oy = random() * 20;
+
+      let min = Infinity;
+      let max = -Infinity;
+
+      for (let iy = 0; iy < GRID; iy++) {
+        for (let ix = 0; ix < GRID; ix++) {
+
+          const u = ix / (GRID - 1);
+          const v = iy / (GRID - 1);
+
+          const base = fbm(u * 3.4 + ox, v * 3.4 + oy, 6);
+          const ridge = 1 - Math.abs(2 * fbm(u * 2.6 + oy, v * 2.6 + ox, 5) - 1);
+
+          /* one big massif off the middle, lower ground in front */
+          const du = u - 0.45;
+          const dv = v - 0.4;
+          const massif = Math.exp(-(du * du + dv * dv) / 0.07);
+
+          const h = 0.42 * base + 0.55 * ridge * ridge + 0.3 * massif - 0.1 * v;
+
+          heights[iy * GRID + ix] = h;
+
+          /* min and max of what is stored (rounded the same way) */
+          min = Math.min(min, heights[iy * GRID + ix]);
+          max = Math.max(max, heights[iy * GRID + ix]);
+
+          worldX[iy * GRID + ix] = u - 0.5;
+          worldY[iy * GRID + ix] = v - 0.5;
+
+        }
+      }
+
+      for (let i = 0; i < heights.length; i++) {
+        heights[i] = Math.pow(Math.max(0, (heights[i] - min) / (max - min)), 1.25);
+      }
+
+      /* light from the upper left: how bright every point is */
+      const lx = -0.62;
+      const ly = -0.5;
+      const lz = 0.6;
+      const slopeScale = 0.35 * GRID / 2;
+
+      let lo = Infinity;
+      let hi = -Infinity;
+
+      for (let iy = 0; iy < GRID; iy++) {
+        for (let ix = 0; ix < GRID; ix++) {
+
+          const x0 = Math.max(0, ix - 1);
+          const x1 = Math.min(GRID - 1, ix + 1);
+          const y0 = Math.max(0, iy - 1);
+          const y1 = Math.min(GRID - 1, iy + 1);
+
+          const dx = (heights[iy * GRID + x1] - heights[iy * GRID + x0]) * slopeScale;
+          const dy = (heights[y1 * GRID + ix] - heights[y0 * GRID + ix]) * slopeScale;
+
+          const nl = Math.hypot(dx, dy, 1);
+          const light = (-dx * lx - dy * ly + lz) / nl;
+
+          lights[iy * GRID + ix] = light;
+
+          lo = Math.min(lo, lights[iy * GRID + ix]);
+          hi = Math.max(hi, lights[iy * GRID + ix]);
+
+        }
+      }
+
+      for (let i = 0; i < lights.length; i++) {
+        lights[i] = (lights[i] - lo) / (hi - lo);
+      }
+
+    })();
+
+
+    /* ---------- the grid of cells ---------- */
+
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    /* sizes of the grid: set by layout() */
+    const m = {
+      width: 0, height: 0,
+      cw: 0, ch: 0, font: 0,
+      cols: 0, rows: 0,
+      headerRows: 0, headerH: 0,
+      phone: false
+    };
+
+    let look = INTRO_SETTINGS.desktop;
+
+    let baseSymbols = [];     /* the terrain */
+    let symbols = [];         /* the terrain and the cells that hide text */
+    let texts = [];           /* the letters of METHOD and of the line */
+    let slotOf = null;        /* which symbol is in which cell */
+    const flagged = [];
+
+    function cellHash(col, row) {
+
+      let n = (col * 374761393 + row * 668265263) | 0;
+      n = (n ^ (n >>> 13)) * 1274126177;
+      n = n ^ (n >>> 16);
+
+      return ((n >>> 0) % 10000) / 10000;
+
+    }
+
+    function makeSymbol(col, row, kind) {
+      return {
+        x: col * m.cw + m.cw / 2,
+        y: row * m.ch + m.ch / 2,
+        kind: kind,
+        r1: cellHash(row + 7, col + 3),
+        r2: cellHash(col + 11, row + 5),
+        r3: cellHash(row + 19, col + 23)
+      };
+    }
+
+
+    /* ---------- the sprites: every symbol drawn once ---------- */
+
+    const KINDS = ["o", "6", "4", "%", "5", "7", "_"];
+    let atlas = {};
+
+    function buildAtlas() {
+
+      atlas = {};
+
+      const sw = Math.ceil(m.cw * dpr) + 1;
+      const sh = Math.ceil(m.ch * dpr) + 1;
+
+      KINDS.forEach(
+        (kind) => {
+
+          const sprite = document.createElement("canvas");
+          sprite.width = sw;
+          sprite.height = sh;
+
+          const g = sprite.getContext("2d");
+
+          g.fillStyle = INK;
+
+          if (kind === "o") {
+            g.beginPath();
+            g.ellipse(sw / 2, sh / 2, m.cw * dpr * 0.5, m.ch * dpr * 0.48, 0, 0, Math.PI * 2);
+            g.fill();
+          }
+          else if (kind === "_") {
+            const thick = Math.max(1, Math.round(m.font * dpr * 0.07));
+            g.fillRect(0, Math.round(sh * 0.78), sw, thick);
+          }
+          else {
+            g.font = (m.font * dpr) + "px " + FONT_FAMILY;
+            g.textAlign = "center";
+            g.textBaseline = "middle";
+            g.fillText(kind, sw / 2, sh / 2);
+          }
+
+          atlas[kind] = { image: sprite, w: sw / dpr, h: sh / dpr };
+
+        }
+      );
+
+    }
+
+    /* puts a symbol with its middle at (x, y), on a whole pixel */
+    function stamp(g, kind, x, y) {
+
+      const sprite = atlas[kind];
+
+      g.drawImage(
+        sprite.image,
+        Math.round((x - m.cw / 2) * dpr) / dpr,
+        Math.round((y - m.ch / 2) * dpr) / dpr,
+        sprite.w,
+        sprite.h
+      );
+
+    }
+
+
+    /* ---------- the terrain block, cell by cell ---------- */
+
+    function buildTerrain() {
+
+      const list = [];
+
+      /* the picture does not stick to the lower edge of the screen:
+         there is free room under it (INTRO_SETTINGS.bottomGap) */
+      const zoneTop = m.headerH + 10;
+      const zoneBottom = m.height - Math.max(18, m.height * look.bottomGap);
+      const zone = zoneBottom - zoneTop;
+
+      m.zoneMiddle = (zoneTop + zoneBottom) / 2;
+
+      const reliefW = Math.min(
+        m.width * look.width,
+        1100,
+        zone / (look.tilt + look.height + look.wall)
+      );
+
+      const k = reliefW / Math.SQRT2;
+      const amp = reliefW * look.height;
+      const wallPx = reliefW * look.wall;
+
+      /* the whole block (peaks and cut faces) in the middle of
+         the space under the header */
+      const extent = reliefW * look.tilt + amp + wallPx;
+      const top = zoneTop + (zone - extent) / 2;
+
+      const cx = m.width / 2;
+      const cy = top + amp + reliefW * look.tilt / 2;
+
+      const cells = m.cols * m.rows;
+      const depthBuffer = new Float32Array(cells).fill(-1e9);
+      const codeBuffer = new Int32Array(cells).fill(-1);   /* -2 = cut face */
+
+      const cos45 = Math.SQRT1_2;
+
+      function plot(sx, sy, depth, code) {
+
+        const col = Math.floor(sx / m.cw);
+        const row = Math.floor(sy / m.ch);
+
+        if (col < 0 || col >= m.cols || row < m.headerRows || row >= m.rows) {
+          return;
+        }
+
+        const slot = row * m.cols + col;
+
+        if (depth > depthBuffer[slot]) {
+          depthBuffer[slot] = depth;
+          codeBuffer[slot] = code;
+        }
+
+      }
+
+      /* the surface */
+      for (let i = 0; i < GRID * GRID; i++) {
+
+        const x = worldX[i];
+        const y = worldY[i];
+
+        const xr = (x - y) * cos45;
+        const yr = (x + y) * cos45;
+
+        plot(
+          cx + xr * k,
+          cy + yr * k * look.tilt - heights[i] * amp,
+          yr,
+          i
+        );
+
+      }
+
+      /*
+        The two front faces: along the two front edges of the
+        block the ground is cut straight down. Each face is
+        filled from the line of the ground to the bottom, which
+        gives the vertical cuts of the picture.
+      */
+      const stepY = m.ch * 0.5;
+
+      for (let edge = 0; edge < 2; edge++) {
+        for (let i = 0; i < GRID; i++) {
+
+          const index = edge === 0 ? i * GRID + (GRID - 1) : (GRID - 1) * GRID + i;
+
+          const x = worldX[index];
+          const y = worldY[index];
+
+          const xr = (x - y) * cos45;
+          const yr = (x + y) * cos45;
+
+          const sx = cx + xr * k;
+          const baseY = cy + yr * k * look.tilt;
+
+          for (let sy = baseY - heights[index] * amp; sy <= baseY + wallPx; sy += stepY) {
+            plot(sx, sy, yr + 0.002, -2);
+          }
+
+        }
+      }
+
+      slotOf = new Int32Array(cells).fill(-1);
+
+      for (let slot = 0; slot < cells; slot++) {
+
+        const code = codeBuffer[slot];
+
+        if (code === -1) {
+          continue;
+        }
+
+        const col = slot % m.cols;
+        const row = (slot - col) / m.cols;
+
+        let kind;
+
+        if (code === -2) {
+          kind = "_";
+        }
+        else {
+
+          const h = heights[code];
+          const light = lights[code];
+          const luck = cellHash(col, row);
+
+          /*
+            Which symbol: low ground is a line (_); higher ground
+            gets heavier the brighter it is: a dot for the heaviest,
+            then 6, 4, %. Neighbours get the same symbol, so the
+            symbols form patches, as in the original.
+          */
+          if (h < 0.2 - 0.05 * light) {
+            kind = "_";
+          }
+          else {
+
+            const weight = 0.62 * light + 0.55 * h + (luck - 0.5) * 0.07;
+
+            if (weight > 0.72) {
+              kind = "o";
+            }
+            else if (weight > 0.6) {
+              kind = "6";
+            }
+            else if (weight > 0.5) {
+              kind = "4";
+            }
+            else if (weight > 0.43) {
+              kind = luck > 0.55 ? "%" : "";
+            }
+            else {
+              kind = luck > 0.88 ? "_" : "";
+            }
+
+          }
+
+        }
+
+        if (kind) {
+          slotOf[slot] = list.length;
+          list.push(makeSymbol(col, row, kind));
+        }
+
+      }
+
+      return list;
+
+    }
+
+
+    /* ---------- the two rows of text inside the picture ---------- */
+
+    /*
+      METHOD and the line under it are real letters in two rows of
+      the grid. Under every letter lies one symbol of the picture
+      (if the terrain has none there, a filler is added). The
+      letter shows through as that symbol leaves, so the text
+      appears exactly where the picture clears.
+    */
+    const TEXT_START_1 = 0.55;     /* when METHOD begins to show (a share of the spread) */
+    const TEXT_START_2 = 0.85;     /* and the line under it */
+    const TEXT_STAGGER_1 = 0.03;   /* delay between two letters */
+    const TEXT_STAGGER_2 = 0.014;
+    const SPREAD_END = 1.7;        /* where the spread ends, in the same units */
+
+    function rebuildText() {
+
+      flagged.forEach((symbol) => { delete symbol.fixed; });
+      flagged.length = 0;
+
+      const covers = [];
+
+      texts = [];
+
+      const lines = [t("logoText"), t("heroSub")];
+      const middle = Math.round(m.zoneMiddle / m.ch - 0.5);
+      const rowOf = [middle - 1, middle + 1];
+
+      lines.forEach(
+        (line, lineIndex) => {
+
+          const chars = Array.from(line);
+          const start = Math.round((m.cols - chars.length) / 2);
+          const row = rowOf[lineIndex];
+
+          chars.forEach(
+            (character, i) => {
+
+              if (character === " ") {
+                return;
+              }
+
+              const col = start + i;
+              const slot = row * m.cols + col;
+
+              let symbol = slotOf[slot] >= 0 ? baseSymbols[slotOf[slot]] : null;
+
+              if (!symbol) {
+
+                /* a filler that looks like the terrain around it */
+                const luck = cellHash(col + 5, row + 9);
+
+                symbol = makeSymbol(col, row, luck > 0.75 ? "o" : (luck > 0.35 ? "6" : "4"));
+                covers.push(symbol);
+
+              }
+
+              symbol.fixed = lineIndex === 0
+                ? TEXT_START_1 + i * TEXT_STAGGER_1
+                : TEXT_START_2 + i * TEXT_STAGGER_2;
+
+              flagged.push(symbol);
+
+              texts.push({
+                character: character,
+                x: col * m.cw + m.cw / 2,
+                y: row * m.ch + m.ch / 2,
+                cover: symbol,
+                /* the letter shows (at once, no fade) when its cover
+                   has gone this far: a different point for every
+                   letter, so the order is a little random */
+                at: 0.1 + cellHash(col + 31, row + 17) * 0.6
+              });
+
+            }
+          );
+
+        }
+      );
+
+      symbols = baseSymbols.concat(covers);
+
+    }
+
+
+    /* ---------- layout: everything depends on the screen size ---------- */
+
+    function setupCanvas(element, context, width, height) {
+
+      element.width = Math.round(width * dpr);
+      element.height = Math.round(height * dpr);
+
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    }
+
+    function layout() {
+
+      m.phone = window.innerWidth <= 700;
+      look = m.phone ? INTRO_SETTINGS.phone : INTRO_SETTINGS.desktop;
+
+      m.width = stage.clientWidth;
+      m.height = stage.clientHeight;
+
+      m.cw = Math.max(
+        look.minCell,
+        Math.min(m.width, 1200) * look.width / INTRO_SETTINGS.cellDivisor
+      );
+      m.ch = m.cw * 1.28;
+      m.font = m.cw / 0.6 * 0.98;
+
+      m.cols = Math.ceil(m.width / m.cw);
+      m.rows = Math.ceil(m.height / m.ch);
+
+      /* the header is a plain bar: the picture starts under it */
+      m.headerH = header.offsetHeight;
+      m.headerRows = Math.ceil(m.headerH / m.ch);
+
+      setupCanvas(canvas, ctx, m.width, m.height);
+
+      buildAtlas();
+
+      baseSymbols = buildTerrain();
+      rebuildText();
+
+    }
+
+
+    /* ---------- drawing and the scroll ---------- */
+
+    const ease = (k) => k * k * (3 - 2 * k);
+    const clamp01 = (k) => Math.max(0, Math.min(1, k));
+
+    /* how far a symbol has gone (0 = at home, 1 = gone) at time t of the spread */
+    function progressOf(symbol, time) {
+
+      let delay;
+      let duration;
+
+      if (symbol.fixed !== undefined) {
+        delay = symbol.fixed;
+        duration = 0.4;
+      }
+      else {
+
+        /* a random delay and speed for every symbol */
+        const half = m.width / 2;
+        const away = Math.min(1, Math.abs(symbol.x - half) / half);
+
+        delay = (1 - away) * 0.3 + symbol.r1 * 0.2;
+        duration = 0.35 + symbol.r2 * 0.3;
+
+      }
+
+      return clamp01((time - delay) / duration);
+
+    }
+
+    /* draws the picture for the scroll share p (0 = whole) */
+    function draw(p) {
+
+      ctx.clearRect(0, 0, m.width, m.height);
+
+      const time = clamp01(p / INTRO_SETTINGS.split) * SPREAD_END;
+      const half = m.width / 2;
+
+      for (let i = 0; i < symbols.length; i++) {
+
+        const symbol = symbols[i];
+
+        let x = symbol.x;
+        let y = symbol.y;
+
+        if (time > 0) {
+
+          const k = progressOf(symbol, time);
+
+          if (k > 0) {
+
+            const side = symbol.x < half ? -1 : 1;
+            const travel = half - Math.abs(symbol.x - half) + m.cw * 3 + symbol.r3 * 60;
+
+            x += side * travel * k * k * k;
+            y += (symbol.r3 - 0.5) * 24 * k;
+
+            if (x < -m.cw || x > m.width + m.cw) {
+              continue;
+            }
+
+          }
+
+        }
+
+        stamp(ctx, symbol.kind, x, y);
+
+      }
+
+      /* the two rows of text show through as their symbols leave */
+      ctx.fillStyle = INK;
+      ctx.font = m.font + "px " + FONT_FAMILY;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      for (let i = 0; i < texts.length; i++) {
+
+        const letter = texts[i];
+
+        if (progressOf(letter.cover, time) > letter.at) {
+          ctx.fillText(letter.character, letter.x, letter.y);
+        }
+
+      }
+
+    }
+
+    /* the scroll share: 0 at the top of the page, 1 where the
+       track ends */
+    function scrollShare() {
+
+      const range = track.offsetHeight - stage.offsetHeight;
+
+      if (range <= 0) {
+        return 1;
+      }
+
+      return clamp01(-track.getBoundingClientRect().top / range);
+
+    }
+
+    let lastShare = -1;
+
+    function update() {
+
+      const share = scrollShare();
+
+      if (share === lastShare) {
+        return;
+      }
+
+      lastShare = share;
+
+      draw(share);
+
+    }
+
+    let ticking = false;
+
+    function onScroll() {
+
+      if (!ticking) {
+
+        ticking = true;
+
+        requestAnimationFrame(() => {
+          ticking = false;
+          update();
+        });
+
+      }
+
+    }
+
+    let resizeTimer = 0;
+    let lastWidth = 0;
+    let lastHeight = 0;
+
+    function onResize() {
+
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(
+        () => {
+
+          /* a phone's address bar changes the height a little:
+             that is not a new size */
+          if (stage.clientWidth === lastWidth &&
+              Math.abs(stage.clientHeight - lastHeight) < 120) {
+            return;
+          }
+
+          lastWidth = stage.clientWidth;
+          lastHeight = stage.clientHeight;
+
+          layout();
+          lastShare = -1;
+          update();
+
+        },
+        150
+      );
+
+    }
+
+    let ready = false;
+
+    /* the language changed: new words in the header and in the
+       line under METHOD */
+    document.addEventListener(
+      "methodlanguage",
+      () => {
+
+        if (!ready) {
+          return;
+        }
+
+        rebuildText();
+
+        lastShare = -1;
+        update();
+
+      }
+    );
+
+    /* starts once the fonts are ready (Latin and Cyrillic), so the
+       symbols do not change shape in the middle */
+    const fontReady =
+      document.fonts && document.fonts.load
+        ? Promise.all([
+            document.fonts.load('16px "IBM Plex Mono"', "METHOD 4567%"),
+            document.fonts.load('16px "IBM Plex Mono"', "ПРОЕКТЫ МЕТОД ЛАНДШАФТ")
+          ])
+        : Promise.resolve();
+
+    Promise.race([
+      fontReady,
+      new Promise((resolve) => setTimeout(resolve, 1200))
+    ]).then(() => {
+
+      lastWidth = stage.clientWidth;
+      lastHeight = stage.clientHeight;
+
+      layout();
+
+      ready = true;
+
+      if (forcedProgress !== null) {
+        draw(Number(forcedProgress));
+        return;
+      }
+
+      /* opened already scrolled (a reload, #about): the picture
+         shows the state for this place */
+      update();
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onResize);
+
+    });
+
+  })();
+
+  window.__methodReady = true;
+
+</script>
+
+
+</body>
+</html>
