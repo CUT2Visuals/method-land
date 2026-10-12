@@ -365,17 +365,16 @@
 
 
     /* ==================================================
-       PROJECTS: a grid of equal squares with thin lines
+       PROJECTS: a field of symbols
     ================================================== */
 
     /*
-      The grid is as wide as the screen: --cols cells across (8 on
-      a computer). The pictures take the cells in the middle; the
-      first and the last column stay empty (only the lines of the
-      grid are there). A click opens a picture across the middle
-      columns, right under the title; the other cells stay as they
-      were and move down. A click on the open picture closes it.
-      No animation. The cells are built from PROJECTS_SETTINGS.
+      A field of symbols on a grid, drawn on a canvas. The symbols
+      are small dots; near the pointer they grow and change into
+      the symbols of the picture on the first screen. A click opens
+      a picture right there (it covers a block of cells); a click on
+      the picture closes it. No animation. Built from
+      PROJECTS_SETTINGS.
     */
     #projects {
       padding-left: 0;
@@ -386,58 +385,46 @@
       padding: 0 28px;
     }
 
-    .gallery {
-      --cols: var(--cols-desktop, 8);
+    .field {
+      position: relative;
 
-      /* the width of one cell */
-      --cell: calc(100cqw / var(--cols));
+      width: 100%;
 
-      container-type: inline-size;
+      /* a finger moving up and down scrolls the page */
+      touch-action: pan-y;
+
+      cursor: default;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .gallery-grid {
-      display: grid;
-      grid-template-columns:
-        calc(100% / var(--cols))
-        minmax(0, 1fr)
-        calc(100% / var(--cols));
-
-      border-top: 1px solid #000;
+    .field:focus {
+      outline: none;
     }
 
-    /* the empty columns at the sides: only the lines */
-    .gallery-side {
-      background-image: linear-gradient(to bottom, transparent calc(var(--cell) - 1px), #000 0);
-      background-size: 100% var(--cell);
+    .field:focus-visible {
+      outline: 1px solid #000;
+      outline-offset: -4px;
     }
 
-    .gallery-side.left {
-      border-left: 1px solid #000;
-      border-right: 1px solid #000;
-    }
+    .field canvas {
+      position: absolute;
+      inset: 0;
 
-    .gallery-side.right {
-      border-right: 1px solid #000;
-    }
+      width: 100%;
+      height: 100%;
 
-    .gallery-center {
-      display: grid;
-      grid-template-columns: repeat(calc(var(--cols) - 2), minmax(0, 1fr));
-    }
-
-    .gallery-item {
       display: block;
-      min-width: 0;
+    }
+
+    .field-open {
+      position: absolute;
+
       margin: 0;
       padding: 0;
       border: 0;
-      border-right: 1px solid #000;
-      border-bottom: 1px solid #000;
       border-radius: 0;
 
-      aspect-ratio: 1;
       overflow: hidden;
-
       background: #e7e3d8;
       color: inherit;
       font: inherit;
@@ -446,7 +433,11 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .gallery-item img {
+    .field-open[hidden] {
+      display: none;
+    }
+
+    .field-open img {
       display: block;
 
       width: 100%;
@@ -455,53 +446,22 @@
       object-fit: cover;
     }
 
-    /* the open picture: all the middle columns, first, in its
-       own shape (its height is a whole number of cells, so the
-       lines of the grid keep in step) */
-    .gallery-item.is-open {
-      grid-column: 1 / -1;
-      order: -1;
+    /* an empty frame before the real picture arrives */
+    .field-open.is-empty {
+      background: var(--paper);
+      box-shadow: inset 0 0 0 1px #000;
 
-      aspect-ratio: var(--ar, 1.5);
+      text-align: left;
+      vertical-align: top;
     }
 
-    @supports (height: round(1px, 1px)) {
-      .gallery-item.is-open {
-        aspect-ratio: auto;
-        height: round(
-          calc(100cqw * (var(--cols) - 2) / var(--cols) / var(--ar, 1.5)),
-          var(--cell)
-        );
-      }
-    }
-
-    /* an empty place before the real picture arrives, and the
-       cells that fill the last row */
-    .gallery-item.is-empty,
-    .gallery-filler {
-      background: none;
-    }
-
-    .gallery-filler {
-      order: 100000;
-
-      aspect-ratio: 1;
-
-      border-right: 1px solid #000;
-      border-bottom: 1px solid #000;
-    }
-
-    .gallery-filler[hidden] {
-      display: none;
-    }
-
-    .gallery-item:focus {
+    .field-open:focus {
       outline: none;
     }
 
-    .gallery-item:focus-visible {
+    .field-open:focus-visible {
       outline: 2px solid #000;
-      outline-offset: -4px;
+      outline-offset: 3px;
     }
 
 
@@ -658,10 +618,6 @@
 
       #projects .section-title {
         padding: 0 16px;
-      }
-
-      .gallery {
-        --cols: var(--cols-phone, 6);
       }
 
       .people {
@@ -853,29 +809,40 @@
   ================================================== */
 
   /*
-    The grid of pictures: equal squares, edge to edge. A click
-    opens a picture across the whole width right under the title,
-    the others move down in a circle (the one after the open
-    picture comes first, after the last one the first again);
-    a click on the open one closes it and brings the original
-    order back.
+    A field of symbols on a grid. Near the pointer the symbols
+    grow and change; a click opens the next picture at that
+    place, covering a block of cells (a wide picture 6 x 4 cells,
+    a tall one 4 x 6, an almost square one 4 x 4). A click on the
+    open picture closes it; a click elsewhere replaces it with the
+    next picture. On a phone a tap does the same, with a ripple
+    from the finger, and the field breathes slowly by itself.
 
-    columns       how many cells across the whole screen
-                  (desktop / phone). The first and the last one
-                  stay empty: the pictures take the rest.
-    placeholders  how many empty frames to show while there are
-                  no pictures in the list
-    images        the pictures, in the order of the grid. Every
-                  one is a file name inside the folder projects/
+    columns       how many symbols across the screen
+                  (desktop / phone)
+    open          how many cells the open picture covers: the
+                  long side and the short side
+                  (desktop / phone; bigger = bigger pictures)
+    height        the height of the field as a share of the
+                  height of the screen
+    wave          how far the pointer's wave reaches, in cells
+    placeholders  how many empty frames to use while there are
+                  no pictures
+    images        the pictures, in the order they come. Every one
+                  is a file name inside the folder projects/
                   (next to index.html), for example "01.jpg", or
                   { src: "01.jpg", alt: "what is shown" }.
-                  A picture should be a JPG about 2000 px wide
-                  (the same file is the square and the big view).
+                  A picture should be a JPG about 2000 px wide.
   */
 
   const PROJECTS_SETTINGS = {
 
-    columns: { desktop: 8, phone: 6 },
+    columns: { desktop: 16, phone: 7 },
+    open: {
+      desktop: { long: 6, short: 4 },
+      phone:   { long: 6, short: 4 }
+    },
+    height: 0.8,
+    wave: 2.6,
     placeholders: 12,
 
     folder: "projects/",
@@ -906,7 +873,7 @@
   const PEOPLE = [
 
     { name: { en: "Anton Bratkov", ru: "Антон Братков" },  role: { en: "Landscape architect",                    ru: "Ландшафтный архитектор" } },
-    { name: { en: "Roma Kaigorodov", ru: "Рома Кайгородов" },   role: { en: "Street furniture and play equipment",    ru: "Уличная мебель и игровое оборудование" } },
+    { name: { en: "Roma Kaygorodov", ru: "Рома Кайгородов" },   role: { en: "Street furniture and play equipment",    ru: "Уличная мебель и игровое оборудование" } },
     { name: { en: "Natasha Matsenko", ru: "Наташа Маценко" }, role: { en: "Business development manager",                                ru: "Менеджер по развитию" } }
 
   ];
@@ -1085,172 +1052,524 @@
   ================================================== */
 
   let discovered = null;
+  let galleryStop = null;
 
-  function buildGallery() {
+  const SYMBOLS = ["o", "6", "4", "%", "5", "7", "_"];
 
-    const gallery = document.getElementById("gallery");
+  /* the size of a picture (to choose its shape), asked once */
+  const pictureSizes = {};
 
-    gallery.replaceChildren();
+  function pictureSize(item) {
 
-    gallery.style.setProperty("--cols-desktop", String(PROJECTS_SETTINGS.columns.desktop));
-    gallery.style.setProperty("--cols-phone", String(PROJECTS_SETTINGS.columns.phone));
-
-    const list = PROJECTS_SETTINGS.images.length
-      ? PROJECTS_SETTINGS.images
-      : (discovered || Array.from({ length: PROJECTS_SETTINGS.placeholders }, () => ""));
-
-    const grid = document.createElement("div");
-    grid.className = "gallery-grid";
-
-    const left = document.createElement("div");
-    left.className = "gallery-side left";
-    left.setAttribute("aria-hidden", "true");
-
-    const right = document.createElement("div");
-    right.className = "gallery-side right";
-    right.setAttribute("aria-hidden", "true");
-
-    const center = document.createElement("div");
-    center.className = "gallery-center";
-
-    grid.appendChild(left);
-    grid.appendChild(center);
-    grid.appendChild(right);
-    gallery.appendChild(grid);
-
-    const cells = [];
-    const fillers = [];
-
-    /* how many pictures fit in one row of the middle */
-    function perRow() {
-      const value = parseInt(getComputedStyle(gallery).getPropertyValue("--cols"), 10);
-      return Math.max(1, (value || 8) - 2);
+    if (!item.src) {
+      return Promise.resolve({ w: 3, h: 2 });
     }
 
-    /* empty cells finish the last row, so the lines of the grid
-       are whole (an open picture leaves one cell less) */
-    function updateFillers() {
+    const url = PROJECTS_SETTINGS.folder + item.src;
 
-      const row = perRow();
-      const opened = cells.some((cell) => cell.classList.contains("is-open"));
-      const count = cells.length - (opened ? 1 : 0);
-      const need = (row - (count % row)) % row;
-
-      fillers.forEach((filler, index) => { filler.hidden = index >= need; });
-
-    }
-
-    function close() {
-      cells.forEach(
-        (cell) => {
-          cell.classList.remove("is-open");
-          cell.style.order = "";
-          cell.setAttribute("aria-expanded", "false");
+    if (!pictureSizes[url]) {
+      pictureSizes[url] = new Promise(
+        (resolve) => {
+          const image = new Image();
+          image.onload = () => resolve({ w: image.naturalWidth, h: image.naturalHeight });
+          image.onerror = () => resolve({ w: 3, h: 2 });
+          image.src = url;
         }
       );
     }
 
-    list.forEach(
-      (entry, index) => {
+    return pictureSizes[url];
 
-        const picture = typeof entry === "string" ? { src: entry } : entry;
+  }
 
-        const cell = document.createElement("button");
-        cell.type = "button";
-        cell.className = "gallery-item";
-        cell.setAttribute("aria-expanded", "false");
-        cell.setAttribute("aria-label", "Project " + (index + 1));
+  function buildGallery() {
 
-        if (picture.src) {
+    if (galleryStop) {
+      galleryStop();
+      galleryStop = null;
+    }
 
-          const image = document.createElement("img");
-          image.src = PROJECTS_SETTINGS.folder + picture.src;
-          image.alt = picture.alt || "";
-          image.loading = "lazy";
-          image.decoding = "async";
+    const S = PROJECTS_SETTINGS;
+    const gallery = document.getElementById("gallery");
 
-          /* the shape of the picture, for the open view */
-          const shape = () => {
-            if (image.naturalWidth && image.naturalHeight) {
-              cell.style.setProperty("--ar", String(image.naturalWidth / image.naturalHeight));
-            }
-          };
+    gallery.replaceChildren();
 
-          image.addEventListener("load", shape);
-          shape();
+    const names = S.images.length ? S.images : (discovered || []);
 
-          cell.appendChild(image);
+    const items = names.length
+      ? names.map((entry) => (typeof entry === "string" ? { src: entry } : entry))
+      : Array.from({ length: S.placeholders }, () => ({ src: "" }));
 
+    const touchOnly = window.matchMedia && window.matchMedia("(hover: none)").matches;
+    const still = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    const field = document.createElement("div");
+    field.className = "field";
+    field.tabIndex = 0;
+    field.setAttribute("role", "group");
+    field.setAttribute("aria-label", "Projects. Arrow keys move, Enter opens a picture, Escape closes it.");
+
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+
+    const frame = document.createElement("button");
+    frame.type = "button";
+    frame.className = "field-open";
+    frame.hidden = true;
+    frame.setAttribute("aria-label", "Close the picture");
+
+    field.appendChild(canvas);
+    field.appendChild(frame);
+    gallery.appendChild(field);
+
+    const g = canvas.getContext("2d");
+
+    /* ---------- the grid ---------- */
+
+    const m = { w: 0, h: 0, cols: 0, rows: 0, cell: 0, dpr: 1, phone: false };
+
+    let weight = new Float32Array(0);
+    let kind = new Uint8Array(0);
+    let change = new Float32Array(0);
+
+    function layout() {
+
+      m.phone = window.innerWidth <= 700;
+      m.dpr = Math.min(2, window.devicePixelRatio || 1);
+      m.w = field.clientWidth;
+      m.cols = m.phone ? S.columns.phone : S.columns.desktop;
+      m.cell = m.w / m.cols;
+
+      const need = (m.phone ? S.open.phone : S.open.desktop).long + 1;
+
+      m.rows = Math.max(need, Math.round(window.innerHeight * S.height / m.cell));
+      m.h = m.rows * m.cell;
+
+      field.style.height = m.h + "px";
+
+      canvas.width = Math.round(m.w * m.dpr);
+      canvas.height = Math.round(m.h * m.dpr);
+      g.setTransform(m.dpr, 0, 0, m.dpr, 0, 0);
+
+      const count = m.cols * m.rows;
+
+      weight = new Float32Array(count);
+      kind = new Uint8Array(count);
+      change = new Float32Array(count);
+
+    }
+
+    const px = (i) => (i + 0.5) * m.cell;
+    const py = (j) => (j + 0.5) * m.cell;
+
+    /* ---------- what moves the symbols ---------- */
+
+    let cursor = null;          /* {x, y} in pixels, or null */
+    let keyboard = null;        /* {i, j}: the point of the keys */
+    const pulses = [];          /* ripples: {x, y, t0} */
+
+    let hole = null;            /* the open picture's rect, pixels */
+
+    const clamp01 = (k) => Math.max(0, Math.min(1, k));
+
+    function frameAt(now) {
+
+      g.clearRect(0, 0, m.w, m.h);
+
+      g.fillStyle = "#000";
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+
+      const cell = m.cell;
+      const sigma = S.wave / 2.2;
+
+      const point = keyboard
+        ? { x: px(keyboard.i), y: py(keyboard.j) }
+        : cursor;
+
+      /* ripples fade after 1.6 seconds */
+      for (let k = pulses.length - 1; k >= 0; k--) {
+        if (now - pulses[k].t0 > 1600) {
+          pulses.splice(k, 1);
         }
-        else {
-          cell.classList.add("is-empty");
-        }
+      }
 
-        cell.addEventListener(
-          "click",
-          () => {
+      const breath = still ? 0 : (touchOnly ? 0.3 : 0.08);
 
-            /* a click on the open picture closes it */
-            if (cell.classList.contains("is-open")) {
-              close();
-              updateFillers();
-              return;
-            }
+      for (let j = 0; j < m.rows; j++) {
+        for (let i = 0; i < m.cols; i++) {
 
-            close();
+          const n = j * m.cols + i;
+          const x = px(i);
+          const y = py(j);
 
-            cell.classList.add("is-open");
-            cell.setAttribute("aria-expanded", "true");
+          /* under the open picture: nothing to draw */
+          if (hole && x > hole.l && x < hole.r && y > hole.t && y < hole.b) {
+            weight[n] = 0;
+            continue;
+          }
 
-            /* a carousel: under the open picture come the ones that
-               follow it, and after the last one the first again */
-            cells.forEach(
-              (other, otherIndex) => {
-                if (other !== cell) {
-                  other.style.order = String((otherIndex - index + cells.length) % cells.length);
-                }
-              }
-            );
+          let target = 0;
 
-            const image = cell.querySelector("img");
-            if (image) {
-              image.loading = "eager";
-            }
+          if (point) {
+            const d = Math.hypot(x - point.x, y - point.y) / cell;
+            target = Math.exp(-(d * d) / (2 * sigma * sigma));
+          }
 
-            updateFillers();
+          for (let k = 0; k < pulses.length; k++) {
+            const age = (now - pulses[k].t0) / 1000;
+            const d = Math.hypot(x - pulses[k].x, y - pulses[k].y) / cell;
+            const ring = Math.exp(-Math.pow(d - age * 7, 2) / 1.6) * (1 - age / 1.6);
+            target = Math.max(target, ring);
+          }
 
-            /* the open picture is the first one under the title:
-               the page shows the title and the picture */
-            const section = document.getElementById("projects");
-            const header = document.querySelector("header");
+          if (breath) {
+            const wave = Math.sin(i * 0.55 + j * 0.4 + now * 0.0012) *
+                         Math.sin(i * 0.23 - j * 0.31 + now * 0.0007);
+            target = Math.max(target, breath * clamp01(wave * 1.4));
+          }
 
-            window.scrollTo(
-              0,
-              section.getBoundingClientRect().top + window.scrollY - header.offsetHeight
-            );
+          /* quick to grow, slow to fade: a trail behind the pointer */
+          const rate = still ? 1 : (target > weight[n] ? 0.4 : 0.07);
+          weight[n] += (target - weight[n]) * rate;
+
+          const w = weight[n];
+
+          if (w < 0.1) {
+
+            kind[n] = 0;
+
+            g.beginPath();
+            g.arc(x, y, Math.max(1.2, cell * (0.04 + 0.2 * w)), 0, 6.2832);
+            g.fill();
+
+            continue;
 
           }
-        );
 
-        cells.push(cell);
-        center.appendChild(cell);
+          /* the symbol changes at random while it is awake */
+          if (now >= change[n]) {
+            kind[n] = Math.floor(Math.random() * SYMBOLS.length);
+            change[n] = now + (still ? 1e9 : 70 + Math.random() * 160);
+          }
 
+          const size = cell * (0.16 + 0.62 * w);
+          const symbol = SYMBOLS[kind[n]];
+
+          if (symbol === "o") {
+            g.beginPath();
+            g.arc(x, y, size * 0.34, 0, 6.2832);
+            g.fill();
+          }
+          else {
+            g.font = size + 'px "IBM Plex Mono", "Courier New", monospace';
+            g.fillText(symbol, x, y);
+          }
+
+        }
+      }
+
+    }
+
+    /* the loop runs only while the field is on the screen */
+    let raf = 0;
+    let visible = true;
+    let last = 0;
+
+    function loop(now) {
+
+      raf = 0;
+
+      if (!visible) {
+        return;
+      }
+
+      /* about 40 frames a second is enough for dots */
+      if (now - last > 24) {
+        last = now;
+        frameAt(now);
+      }
+
+      raf = requestAnimationFrame(loop);
+
+    }
+
+    function wake() {
+      if (!raf && visible) {
+        raf = requestAnimationFrame(loop);
+      }
+    }
+
+    let watcher = null;
+
+    if ("IntersectionObserver" in window) {
+
+      watcher = new IntersectionObserver(
+        (entries) => {
+          visible = entries[0].isIntersecting;
+          if (visible) {
+            wake();
+            warm();
+          }
+        },
+        { rootMargin: "200px 0px" }
+      );
+
+      watcher.observe(field);
+
+    }
+
+    /* ---------- opening a picture ---------- */
+
+    let shown = -1;      /* which picture is open (-1 = none) */
+    let turn = 0;        /* which picture comes next */
+    let ticket = 0;      /* an answer that came too late is ignored */
+
+    function close() {
+
+      ticket++;
+      shown = -1;
+      hole = null;
+
+      frame.hidden = true;
+      frame.replaceChildren();
+
+    }
+
+    function open(pi, pj) {
+
+      const index = turn % items.length;
+      const item = items[index];
+      const mine = ++ticket;
+
+      turn++;
+
+      pictureSize(item).then(
+        (size) => {
+
+          if (mine !== ticket) {
+            return;
+          }
+
+          const look = m.phone ? S.open.phone : S.open.desktop;
+          const ratio = size.w / size.h;
+
+          let nx = look.short;
+          let ny = look.short;
+
+          if (ratio > 1.15) {
+            nx = look.long;
+          }
+          else if (ratio < 0.87) {
+            ny = look.long;
+          }
+
+          /* the block of cells is centred on the point, then pushed
+             back inside the field by whole cells */
+          let left = px(pi) - nx * m.cell / 2;
+          let top = py(pj) - ny * m.cell / 2;
+
+          left = Math.max(0, Math.min(m.w - nx * m.cell, left));
+          top = Math.max(0, Math.min(m.h - ny * m.cell, top));
+
+          /* a little smaller than the block: the dots on its edge
+             stay visible around the picture */
+          const inset = m.cell * 0.3;
+
+          const l = left + inset;
+          const t = top + inset;
+          const w = nx * m.cell - 2 * inset;
+          const h = ny * m.cell - 2 * inset;
+
+          hole = { l: l, t: t, r: l + w, b: t + h };
+
+          frame.replaceChildren();
+          frame.className = "field-open";
+
+          if (item.src) {
+
+            const image = document.createElement("img");
+            image.src = S.folder + item.src;
+            image.alt = item.alt || "";
+            image.decoding = "async";
+
+            frame.appendChild(image);
+
+          }
+          else {
+            frame.classList.add("is-empty");
+            frame.textContent = String(index + 1).padStart(2, "0");
+          }
+
+          frame.style.left = l + "px";
+          frame.style.top = t + "px";
+          frame.style.width = w + "px";
+          frame.style.height = h + "px";
+          frame.hidden = false;
+
+          shown = index;
+
+          /* the next ones are fetched in advance */
+          pictureSize(items[(index + 1) % items.length]);
+          pictureSize(items[(index + 2) % items.length]);
+
+          wake();
+
+        }
+      );
+
+    }
+
+    /* the first pictures are asked for when the field comes near */
+    function warm() {
+      pictureSize(items[0]);
+      pictureSize(items[1 % items.length]);
+    }
+
+    /* ---------- the pointer, the finger and the keys ---------- */
+
+    function local(event) {
+      const box = field.getBoundingClientRect();
+      return { x: event.clientX - box.left, y: event.clientY - box.top };
+    }
+
+    function onMove(event) {
+
+      if (event.pointerType === "touch") {
+        return;
+      }
+
+      cursor = local(event);
+      keyboard = null;
+      wake();
+
+    }
+
+    function onLeave() {
+      cursor = null;
+    }
+
+    function onClick(event) {
+
+      /* the open picture handles its own click */
+      if (frame.contains(event.target) && !frame.hidden) {
+        return;
+      }
+
+      const at = local(event);
+
+      const pi = Math.max(0, Math.min(m.cols - 1, Math.round(at.x / m.cell - 0.5)));
+      const pj = Math.max(0, Math.min(m.rows - 1, Math.round(at.y / m.cell - 0.5)));
+
+      pulses.push({ x: px(pi), y: py(pj), t0: performance.now() });
+
+      open(pi, pj);
+      wake();
+
+    }
+
+    function onKey(event) {
+
+      const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+
+      if (arrows[event.key]) {
+
+        event.preventDefault();
+
+        if (!keyboard) {
+          keyboard = { i: Math.floor(m.cols / 2), j: Math.floor(m.rows / 2) };
+        }
+        else {
+          keyboard.i = Math.max(0, Math.min(m.cols - 1, keyboard.i + arrows[event.key][0]));
+          keyboard.j = Math.max(0, Math.min(m.rows - 1, keyboard.j + arrows[event.key][1]));
+        }
+
+        wake();
+        return;
+
+      }
+
+      if ((event.key === "Enter" || event.key === " ") && keyboard) {
+
+        event.preventDefault();
+
+        pulses.push({ x: px(keyboard.i), y: py(keyboard.j), t0: performance.now() });
+        open(keyboard.i, keyboard.j);
+        wake();
+
+        frame.focus();
+
+      }
+
+    }
+
+    frame.addEventListener(
+      "click",
+      () => {
+        close();
+        field.focus({ preventScroll: true });
       }
     );
 
-    /* spare empty cells for the last row (never more than a row) */
-    for (let i = 0; i < 12; i++) {
-      const filler = document.createElement("div");
-      filler.className = "gallery-filler";
-      filler.setAttribute("aria-hidden", "true");
-      filler.hidden = true;
-      fillers.push(filler);
-      center.appendChild(filler);
+    field.addEventListener("pointermove", onMove);
+    field.addEventListener("pointerleave", onLeave);
+    field.addEventListener("click", onClick);
+    field.addEventListener("keydown", onKey);
+    frame.addEventListener("keydown", (event) => { if (event.key === "Escape") { close(); field.focus({ preventScroll: true }); } });
+
+    let resizeTimer = 0;
+    let lastWidth = field.clientWidth;
+
+    function onResize() {
+
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(
+        () => {
+
+          /* a phone's address bar changes the height a little:
+             that is not a new size */
+          if (field.clientWidth === lastWidth) {
+            return;
+          }
+
+          lastWidth = field.clientWidth;
+
+          close();
+          layout();
+          wake();
+
+        },
+        150
+      );
+
     }
 
-    updateFillers();
+    window.addEventListener("resize", onResize);
 
-    window.addEventListener("resize", updateFillers);
+    layout();
+    warm();
+    wake();
+
+    galleryStop = () => {
+
+      cancelAnimationFrame(raf);
+      raf = 0;
+      visible = false;
+
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", onResize);
+
+      if (watcher) {
+        watcher.disconnect();
+      }
+
+    };
 
   }
 
