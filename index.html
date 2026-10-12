@@ -803,7 +803,10 @@
   /*
     The grid of pictures: equal squares, edge to edge. A click
     opens a picture across the whole width right under the title,
-    the others move down; a click on the open one closes it.
+    the others move down in a circle (the one after the open
+    picture comes first, after the last one the first again);
+    a click on the open one closes it and brings the original
+    order back.
 
     columns       how many squares in a row (desktop / phone)
     gap           space between the squares, pixels (0 = none)
@@ -1051,6 +1054,7 @@
       cells.forEach(
         (cell) => {
           cell.classList.remove("is-open");
+          cell.style.order = "";
           cell.setAttribute("aria-expanded", "false");
         }
       );
@@ -1096,6 +1100,16 @@
 
             cell.classList.add("is-open");
             cell.setAttribute("aria-expanded", "true");
+
+            /* a carousel: under the open picture come the ones that
+               follow it, and after the last one the first again */
+            cells.forEach(
+              (other, otherIndex) => {
+                if (other !== cell) {
+                  other.style.order = String((otherIndex - index + cells.length) % cells.length);
+                }
+              }
+            );
 
             const image = cell.querySelector("img");
             if (image) {
