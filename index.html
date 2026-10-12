@@ -365,16 +365,17 @@
 
 
     /* ==================================================
-       PROJECTS: a grid of equal squares, edge to edge
+       PROJECTS: a grid of equal squares with thin lines
     ================================================== */
 
     /*
-      Every picture is a square cell; the cells fill the whole
-      width of the page without gaps. A click opens a picture
-      across the whole width, right under the title; the other
-      cells stay as they were and move down under it. A click on
-      the open picture closes it. No animation. The cells are
-      built from PROJECTS_SETTINGS.
+      The grid is as wide as the screen: --cols cells across (8 on
+      a computer). The pictures take the cells in the middle; the
+      first and the last column stay empty (only the lines of the
+      grid are there). A click opens a picture across the middle
+      columns, right under the title; the other cells stay as they
+      were and move down. A click on the open picture closes it.
+      No animation. The cells are built from PROJECTS_SETTINGS.
     */
     #projects {
       padding-left: 0;
@@ -386,11 +387,42 @@
     }
 
     .gallery {
-      --cols: var(--cols-desktop, 4);
+      --cols: var(--cols-desktop, 8);
 
+      /* the width of one cell */
+      --cell: calc(100cqw / var(--cols));
+
+      container-type: inline-size;
+    }
+
+    .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-      gap: var(--gap, 0px);
+      grid-template-columns:
+        calc(100% / var(--cols))
+        minmax(0, 1fr)
+        calc(100% / var(--cols));
+
+      border-top: 1px solid #000;
+    }
+
+    /* the empty columns at the sides: only the lines */
+    .gallery-side {
+      background-image: linear-gradient(to bottom, transparent calc(var(--cell) - 1px), #000 0);
+      background-size: 100% var(--cell);
+    }
+
+    .gallery-side.left {
+      border-left: 1px solid #000;
+      border-right: 1px solid #000;
+    }
+
+    .gallery-side.right {
+      border-right: 1px solid #000;
+    }
+
+    .gallery-center {
+      display: grid;
+      grid-template-columns: repeat(calc(var(--cols) - 2), minmax(0, 1fr));
     }
 
     .gallery-item {
@@ -399,6 +431,8 @@
       margin: 0;
       padding: 0;
       border: 0;
+      border-right: 1px solid #000;
+      border-bottom: 1px solid #000;
       border-radius: 0;
 
       aspect-ratio: 1;
@@ -421,26 +455,44 @@
       object-fit: cover;
     }
 
-    /* the open picture: the whole row, first, in its own shape */
+    /* the open picture: all the middle columns, first, in its
+       own shape (its height is a whole number of cells, so the
+       lines of the grid keep in step) */
     .gallery-item.is-open {
       grid-column: 1 / -1;
       order: -1;
 
-      aspect-ratio: auto;
+      aspect-ratio: var(--ar, 1.5);
     }
 
-    .gallery-item.is-open img {
-      height: auto;
+    @supports (height: round(1px, 1px)) {
+      .gallery-item.is-open {
+        aspect-ratio: auto;
+        height: round(
+          calc(100cqw * (var(--cols) - 2) / var(--cols) / var(--ar, 1.5)),
+          var(--cell)
+        );
+      }
     }
 
-    /* an empty place before the real picture arrives */
-    .gallery-item.is-empty {
+    /* an empty place before the real picture arrives, and the
+       cells that fill the last row */
+    .gallery-item.is-empty,
+    .gallery-filler {
       background: none;
-      box-shadow: inset 0 0 0 1px #000;
     }
 
-    .gallery-item.is-empty.is-open {
-      aspect-ratio: 3 / 2;
+    .gallery-filler {
+      order: 100000;
+
+      aspect-ratio: 1;
+
+      border-right: 1px solid #000;
+      border-bottom: 1px solid #000;
+    }
+
+    .gallery-filler[hidden] {
+      display: none;
     }
 
     .gallery-item:focus {
@@ -609,7 +661,7 @@
       }
 
       .gallery {
-        --cols: var(--cols-phone, 2);
+        --cols: var(--cols-phone, 6);
       }
 
       .people {
@@ -808,8 +860,9 @@
     a click on the open one closes it and brings the original
     order back.
 
-    columns       how many squares in a row (desktop / phone)
-    gap           space between the squares, pixels (0 = none)
+    columns       how many cells across the whole screen
+                  (desktop / phone). The first and the last one
+                  stay empty: the pictures take the rest.
     placeholders  how many empty frames to show while there are
                   no pictures in the list
     images        the pictures, in the order of the grid. Every
@@ -822,8 +875,7 @@
 
   const PROJECTS_SETTINGS = {
 
-    columns: { desktop: 4, phone: 2 },
-    gap: 0,
+    columns: { desktop: 8, phone: 6 },
     placeholders: 12,
 
     folder: "projects/",
@@ -1042,13 +1094,51 @@
 
     gallery.style.setProperty("--cols-desktop", String(PROJECTS_SETTINGS.columns.desktop));
     gallery.style.setProperty("--cols-phone", String(PROJECTS_SETTINGS.columns.phone));
-    gallery.style.setProperty("--gap", PROJECTS_SETTINGS.gap + "px");
 
     const list = PROJECTS_SETTINGS.images.length
       ? PROJECTS_SETTINGS.images
       : (discovered || Array.from({ length: PROJECTS_SETTINGS.placeholders }, () => ""));
 
+    const grid = document.createElement("div");
+    grid.className = "gallery-grid";
+
+    const left = document.createElement("div");
+    left.className = "gallery-side left";
+    left.setAttribute("aria-hidden", "true");
+
+    const right = document.createElement("div");
+    right.className = "gallery-side right";
+    right.setAttribute("aria-hidden", "true");
+
+    const center = document.createElement("div");
+    center.className = "gallery-center";
+
+    grid.appendChild(left);
+    grid.appendChild(center);
+    grid.appendChild(right);
+    gallery.appendChild(grid);
+
     const cells = [];
+    const fillers = [];
+
+    /* how many pictures fit in one row of the middle */
+    function perRow() {
+      const value = parseInt(getComputedStyle(gallery).getPropertyValue("--cols"), 10);
+      return Math.max(1, (value || 8) - 2);
+    }
+
+    /* empty cells finish the last row, so the lines of the grid
+       are whole (an open picture leaves one cell less) */
+    function updateFillers() {
+
+      const row = perRow();
+      const opened = cells.some((cell) => cell.classList.contains("is-open"));
+      const count = cells.length - (opened ? 1 : 0);
+      const need = (row - (count % row)) % row;
+
+      fillers.forEach((filler, index) => { filler.hidden = index >= need; });
+
+    }
 
     function close() {
       cells.forEach(
@@ -1079,6 +1169,16 @@
           image.loading = "lazy";
           image.decoding = "async";
 
+          /* the shape of the picture, for the open view */
+          const shape = () => {
+            if (image.naturalWidth && image.naturalHeight) {
+              cell.style.setProperty("--ar", String(image.naturalWidth / image.naturalHeight));
+            }
+          };
+
+          image.addEventListener("load", shape);
+          shape();
+
           cell.appendChild(image);
 
         }
@@ -1093,6 +1193,7 @@
             /* a click on the open picture closes it */
             if (cell.classList.contains("is-open")) {
               close();
+              updateFillers();
               return;
             }
 
@@ -1116,6 +1217,8 @@
               image.loading = "eager";
             }
 
+            updateFillers();
+
             /* the open picture is the first one under the title:
                the page shows the title and the picture */
             const section = document.getElementById("projects");
@@ -1130,10 +1233,24 @@
         );
 
         cells.push(cell);
-        gallery.appendChild(cell);
+        center.appendChild(cell);
 
       }
     );
+
+    /* spare empty cells for the last row (never more than a row) */
+    for (let i = 0; i < 12; i++) {
+      const filler = document.createElement("div");
+      filler.className = "gallery-filler";
+      filler.setAttribute("aria-hidden", "true");
+      filler.hidden = true;
+      fillers.push(filler);
+      center.appendChild(filler);
+    }
+
+    updateFillers();
+
+    window.addEventListener("resize", updateFillers);
 
   }
 
