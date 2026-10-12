@@ -1218,9 +1218,8 @@
       const frozen = !moving && !!point;
 
       const font = m.sym + 'px "IBM Plex Mono", "Courier New", monospace';
-      /* a resting point is a small cross; its height is two sizes of
-         the dot it used to be (a dot was 0.32 of a symbol across) */
-      const arm = m.sym * 0.32;
+      /* a resting point is a small cross, its height 0.32 of a symbol */
+      const arm = m.sym * 0.16;
 
       g.lineWidth = Math.max(1, m.sym * 0.1);
       g.lineCap = "butt";
