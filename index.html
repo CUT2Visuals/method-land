@@ -1218,7 +1218,12 @@
       const frozen = !moving && !!point;
 
       const font = m.sym + 'px "IBM Plex Mono", "Courier New", monospace';
-      const dot = m.sym * 0.16;
+      /* a resting point is a small cross; its height is two sizes of
+         the dot it used to be (a dot was 0.32 of a symbol across) */
+      const arm = m.sym * 0.32;
+
+      g.lineWidth = Math.max(1, m.sym * 0.1);
+      g.lineCap = "butt";
 
       for (let j = 0; j < m.rows; j++) {
         for (let i = 0; i < m.cols; i++) {
@@ -1282,9 +1287,13 @@
 
             kind[n] = 255;
 
+            g.strokeStyle = "#000";
             g.beginPath();
-            g.arc(x, y, dot, 0, 6.2832);
-            g.fill();
+            g.moveTo(x - arm, y);
+            g.lineTo(x + arm, y);
+            g.moveTo(x, y - arm);
+            g.lineTo(x, y + arm);
+            g.stroke();
 
             continue;
 
